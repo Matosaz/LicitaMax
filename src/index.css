@@ -57,11 +57,15 @@ All colors MUST be HSL.
     --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-glow)));
     --gradient-premium: linear-gradient(135deg, hsl(var(--premium)), hsl(var(--premium-glow)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    --gradient-hero: linear-gradient(135deg, hsl(213 84% 48%) 0%, hsl(213 76% 60%) 25%, hsl(142 76% 36%) 75%, hsl(142 68% 45%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 
     /* Shadows for depth */
     --shadow-elegant: 0 4px 20px -8px hsl(var(--primary) / 0.25);
     --shadow-card: 0 2px 12px -4px hsl(220 15% 15% / 0.08);
     --shadow-premium: 0 8px 32px -12px hsl(var(--premium) / 0.35);
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    --shadow-float: 0 20px 40px -12px rgba(0, 0, 0, 0.25);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
