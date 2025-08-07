@@ -62,7 +62,7 @@ export const Footer = () => {
         </div>
         
         <div className="border-t border-border pt-8 mt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 LicitaMax. Todos os direitos reservados.</p>
+          <p>&copy; 2025 - LicitaMax. Todos os direitos reservados.</p>
           <p className="mt-1">Dados extraídos de fontes oficiais do governo brasileiro</p>
         </div>
       </div>

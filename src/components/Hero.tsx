@@ -1,117 +1,82 @@
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Search, Shield, TrendingUp, Clock, BarChart3, Users, Award } from "lucide-react";
-import heroModernBg from "@/assets/hero-modern-bg.jpg";
+import React, { forwardRef } from "react";
+import { Gift, Search, Bell } from "lucide-react"; // Ícones do lucide-react
+import backgroundHero from '../assets/images/background.svg';
+import scrollTo from '../assets/images/scroll.png';
+import './Hero.css';
 
-export const Hero = () => {
+const Hero: React.FC = () => {
   return (
-    <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
-      {/* Modern geometric background with overlay */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroModernBg})` }}
-      />
-      <div className="absolute inset-0 bg-gradient-hero opacity-95" />
-      
-      {/* Enhanced floating geometric elements with complex animations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-white/8 to-white/3 rounded-full animate-float-slow shadow-lg backdrop-blur-sm" />
-        <div className="absolute top-40 right-20 w-32 h-32 bg-gradient-to-br from-primary-glow/10 to-primary/5 rounded-lg rotate-45 animate-float shadow-xl backdrop-blur-sm" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-40 left-1/4 w-16 h-16 bg-gradient-to-br from-success-glow/10 to-success/5 rounded-full animate-float-slow shadow-lg backdrop-blur-sm" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-20 right-1/3 w-24 h-24 bg-gradient-to-br from-premium-glow/10 to-premium/5 rounded-lg rotate-12 animate-float shadow-xl backdrop-blur-sm" style={{ animationDelay: '3s' }} />
-        
-        {/* Additional animated particles */}
-        <div className="absolute top-1/2 left-20 w-8 h-8 bg-white/6 rounded-full animate-bounce-subtle" style={{ animationDelay: '4s' }} />
-        <div className="absolute top-1/3 right-40 w-12 h-12 bg-primary-glow/8 rounded-lg rotate-45 animate-float" style={{ animationDelay: '2.5s' }} />
-        <div className="absolute bottom-1/3 left-1/3 w-6 h-6 bg-success-glow/8 rounded-full animate-bounce-subtle" style={{ animationDelay: '1.5s' }} />
-      </div>
-      
-      {/* Content with enhanced animations */}
-      <div className="relative z-10 container mx-auto px-4 text-center text-white">
-        <Badge variant="secondary" className="mb-6 bg-white/10 text-white border-white/20 animate-fade-in animate-glow-pulse">
-          <Shield className="h-3 w-3 mr-1" />
-          Dados Oficiais e Atualizados
-        </Badge>
-        
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">
-          Descubra as melhores
-          <span className="block text-transparent bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text bg-[length:200%_100%] animate-text-shimmer">
-            oportunidades em licitações
-          </span>
-        </h1>
-        
-        <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          Acesse milhares de editais públicos, filtre por categorias e aumente suas chances de sucesso nos negócios com o governo.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-scale-in" style={{ animationDelay: '0.6s' }}>
-          <Button variant="hero" size="lg" className="text-lg px-8 hover:scale-105 transition-all duration-300 animate-glow-pulse">
-            <Search className="h-5 w-5 mr-2" />
-            Explorar Licitações
-          </Button>
-          <Button variant="outline" size="lg" className="bg-white/10 text-white border-white/30 hover:bg-white/20 hover:scale-105 transition-all duration-300 text-lg px-8">
-            Ver Demonstração
-          </Button>
-        </div>
-        
-        {/* Enhanced floating stats cards with staggered animations */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="group relative animate-slide-in-left" style={{ animationDelay: '0.9s' }}>
-            <div className="absolute inset-0 bg-gradient-glass rounded-2xl transform group-hover:scale-110 group-hover:rotate-1 transition-all duration-500" />
-            <div className="relative bg-white/10 backdrop-blur-glass border border-white/20 rounded-2xl p-8 shadow-float hover:shadow-glass transition-all duration-500 group-hover:-translate-y-2">
-              <div className="flex items-center justify-center mb-4">
-                <div className="p-3 bg-success/20 rounded-xl backdrop-blur-sm group-hover:bg-success/30 transition-all duration-300 animate-bounce-subtle">
-                  <TrendingUp className="h-8 w-8 text-success-glow group-hover:scale-110 transition-transform duration-300" />
-                </div>
-              </div>
-              <div className="text-3xl font-bold mb-2 text-white group-hover:text-success-glow transition-colors duration-300">50.000+</div>
-              <div className="text-base text-white/90 font-medium">Licitações Ativas</div>
-              <div className="text-sm text-white/60 mt-1">Atualizadas diariamente</div>
-            </div>
-          </div>
-          
-          <div className="group relative animate-fade-in-up" style={{ animationDelay: '1.2s' }}>
-            <div className="absolute inset-0 bg-gradient-glass rounded-2xl transform group-hover:scale-110 group-hover:-rotate-1 transition-all duration-500" />
-            <div className="relative bg-white/10 backdrop-blur-glass border border-white/20 rounded-2xl p-8 shadow-float hover:shadow-glass transition-all duration-500 group-hover:-translate-y-2">
-              <div className="flex items-center justify-center mb-4">
-                <div className="p-3 bg-primary-glow/20 rounded-xl backdrop-blur-sm group-hover:bg-primary-glow/30 transition-all duration-300 animate-bounce-subtle" style={{ animationDelay: '1s' }}>
-                  <Shield className="h-8 w-8 text-primary-glow group-hover:scale-110 transition-transform duration-300" />
-                </div>
-              </div>
-              <div className="text-3xl font-bold mb-2 text-white group-hover:text-primary-glow transition-colors duration-300">100%</div>
-              <div className="text-base text-white/90 font-medium">Dados Oficiais</div>
-              <div className="text-sm text-white/60 mt-1">Fonte: Portal Nacional</div>
-            </div>
-          </div>
-          
-          <div className="group relative animate-slide-in-right" style={{ animationDelay: '1.5s' }}>
-            <div className="absolute inset-0 bg-gradient-glass rounded-2xl transform group-hover:scale-110 group-hover:rotate-1 transition-all duration-500" />
-            <div className="relative bg-white/10 backdrop-blur-glass border border-white/20 rounded-2xl p-8 shadow-float hover:shadow-glass transition-all duration-500 group-hover:-translate-y-2">
-              <div className="flex items-center justify-center mb-4">
-                <div className="p-3 bg-premium/20 rounded-xl backdrop-blur-sm group-hover:bg-premium/30 transition-all duration-300 animate-bounce-subtle" style={{ animationDelay: '2s' }}>
-                  <Award className="h-8 w-8 text-premium-glow group-hover:scale-110 transition-transform duration-300" />
-                </div>
-              </div>
-              <div className="text-3xl font-bold mb-2 text-white group-hover:text-premium-glow transition-colors duration-300">98%</div>
-              <div className="text-base text-white/90 font-medium">Taxa de Sucesso</div>
-              <div className="text-sm text-white/60 mt-1">Clientes satisfeitos</div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Trust indicators with enhanced animations */}
-        <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 text-white/70 animate-fade-in" style={{ animationDelay: '1.8s' }}>
-          <div className="flex items-center gap-2 hover:text-white/90 transition-colors duration-300 hover:scale-105 transform transition-transform">
-            <Users className="h-4 w-4 animate-bounce-subtle" />
-            <span className="text-sm">Mais de 10.000 empresas confiam</span>
-          </div>
-          <div className="hidden sm:block w-px h-4 bg-white/30 animate-glow-pulse" />
-          <div className="flex items-center gap-2 hover:text-white/90 transition-colors duration-300 hover:scale-105 transform transition-transform">
-            <BarChart3 className="h-4 w-4 animate-bounce-subtle" style={{ animationDelay: '0.5s' }} />
-            <span className="text-sm">R$ 2.8 bilhões em oportunidades</span>
+    <div className="hero-container">
+      <div className="hero-background" style={{ backgroundImage: `url(${backgroundHero})` }} />
+      <div className="hero-content">
+        <div className="text-center">
+          <h1 className="hero-heading">
+            Encontre as melhores <span className="text-indigo-600">licitações</span> para seu negócio
+          </h1>
+
+          <p className="hero-subtitle">
+            Acesso simplificado a milhares de oportunidades de licitações públicas.
+            Economize tempo e encontre os melhores editais para sua empresa.
+          </p>
+
+          <div className="hero-buttons">
+            <a href="#planos" className="hero-button-primary">
+              Conhecer planos
+            </a>
+            <a href="#demo" className="hero-button-secondary">
+              Testar grátis
+            </a>
           </div>
         </div>
       </div>
-    </section>
+
+      <div className="cards-section">
+        <div className="cards-grid">
+          {/* Card 1 */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon green">
+                <Gift className="w-6 h-6" />
+              </div>
+              <h3 className="card-title">Plano Gratuito</h3>
+            </div>
+            <p className="card-description">
+              Acesso básico a licitações com limite de buscas. Ideal para quem está começando.
+            </p>
+          </div>
+
+          {/* Card 2 */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon blue">
+                <Search className="w-6 h-6" />
+              </div>
+              <h3 className="card-title">Buscas Avançadas</h3>
+            </div>
+            <p className="card-description">
+              Filtros poderosos para encontrar exatamente o que precisa. Salve suas pesquisas favoritas.
+            </p>
+          </div>
+
+          {/* Card 3 */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon purple">
+                <Bell className="w-6 h-6" />
+              </div>
+              <h3 className="card-title">Alertas Personalizados</h3>
+            </div>
+            <p className="card-description">
+              Receba notificações por e-mail quando novas licitações do seu interesse forem publicadas.
+            </p>
+          </div>
+          <div>
+          </div>
+          <div className="scroll-to-content"><img src={scrollTo} alt="Scroll to content" /></div></div>
+
+      </div>
+    </div>
   );
 };
+
+export default Hero;

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { BiddingCard } from "./BiddingCard";
-import { SearchFilters } from "./SearchFilters";
 import { PricingModal } from "./PricingModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, TrendingUp, Crown } from "lucide-react";
-
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 const mockBiddings = [
   {
     title: "Aquisição de equipamentos de informática para secretaria de educação",
@@ -71,10 +70,11 @@ const mockBiddings = [
 
 export const Dashboard = () => {
   const [showPricing, setShowPricing] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Alert for free users */}
+      {/* Alert for free users - mantido original */}
       <div className="bg-gradient-to-r from-premium/10 to-premium/5 border border-premium/20 rounded-lg p-4 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -96,34 +96,117 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      <SearchFilters />
-      
+      {/* Novo design para os filtros */}
+      <div className="mb-8 p-4 bg-background rounded-lg border shadow">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button 
+              variant={activeFilter === "all" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveFilter("all")}
+              className="transition-all hover:scale-105"
+            >
+              Todas
+            </Button>
+            <Button 
+              variant={activeFilter === "technology" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveFilter("technology")}
+              className="transition-all hover:scale-105"
+            >
+              Tecnologia
+            </Button>
+            <Button 
+              variant={activeFilter === "construction" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveFilter("construction")}
+              className="transition-all hover:scale-105"
+            >
+              Obras Públicas
+            </Button>
+            <Button 
+              variant={activeFilter === "health" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveFilter("health")}
+              className="transition-all hover:scale-105"
+            >
+              Saúde
+            </Button>
+            <Button 
+              variant={activeFilter === "services" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveFilter("services")}
+              className="transition-all hover:scale-105"
+            >
+              Serviços
+            </Button>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Select>
+              <SelectTrigger className="w-[180px] hover:border-primary/80 transition-colors">
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent className="[&_*]:cursor-pointer">
+                <SelectItem value="relevant" className="hover:bg-accent">Mais relevantes</SelectItem>
+                <SelectItem value="date" className="hover:bg-accent">Data limite</SelectItem>
+                <SelectItem value="value" className="hover:bg-accent">Maior valor</SelectItem>
+                <SelectItem value="location" className="hover:bg-accent">Localização</SelectItem>
+              </SelectContent>
+            </Select>
+
+
+             <Select>
+              <SelectTrigger className="w-[180px] hover:border-primary/80 transition-colors">
+                <SelectValue placeholder="Localização" />
+              </SelectTrigger>
+              <SelectContent className="[&_*]:cursor-pointer">
+                <SelectItem value="relevant" className="hover:bg-accent">São Paulo</SelectItem>
+                <SelectItem value="date" className="hover:bg-accent">Rio de Janeiro</SelectItem>
+                <SelectItem value="value" className="hover:bg-accent">Bahia</SelectItem>
+                <SelectItem value="location" className="hover:bg-accent">Recife</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Atualizar
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Seção de título mantida original */}
       <div className="flex items-center justify-between mt-8 mb-6">
         <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold">Licitações em Destaque</h2>
+          <h2 className="text-3xl font-bold">Licitações em Destaque</h2>
           <Badge variant="outline" className="flex items-center gap-1">
-            <TrendingUp className="h-3 w-3" />
+            <TrendingUp className="h-4 w-4" />
             Mais Relevantes
           </Badge>
         </div>
-        
-        <Button variant="outline" size="sm" className="flex items-center gap-2">
-          <RefreshCw className="h-4 w-4" />
-          Atualizar
-        </Button>
       </div>
       
+      {/* Cards originais com apenas efeito hover adicionado */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {mockBiddings.map((bidding, index) => (
-          <BiddingCard
+          <div 
             key={index}
-            {...bidding}
-          />
+            className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/30"
+          >
+            <BiddingCard
+              {...bidding}
+            />
+          </div>
         ))}
       </div>
       
+      {/* Rodapé mantido original */}
       <div className="text-center mt-8">
-        <Button variant="outline" size="lg">
+        <Button variant="outline" size="lg" className="hover:bg-primary/10 hover:text-primary transition-colors">
           Carregar Mais Licitações
         </Button>
         <p className="text-sm text-muted-foreground mt-2">
