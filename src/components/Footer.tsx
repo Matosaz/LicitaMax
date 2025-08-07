@@ -1,5 +1,5 @@
 import { FileText, Mail, Phone, MapPin } from "lucide-react";
-
+import LicitaLogo from '../assets/images/Logo.png'; // Importe o logo
 export const Footer = () => {
   return (
     <footer className="bg-secondary border-t border-border mt-16">
@@ -8,7 +8,7 @@ export const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <FileText className="h-6 w-6 text-primary" />
+              <img src={LicitaLogo} className="h-8 w-8" alt="" />
               <h3 className="text-lg font-bold text-primary">LicitaMax</h3>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -18,7 +18,7 @@ export const Footer = () => {
               Dados oficiais e atualizados diariamente
             </div>
           </div>
-          
+
           {/* Links */}
           <div className="space-y-4">
             <h4 className="font-semibold">Plataforma</h4>
@@ -29,7 +29,7 @@ export const Footer = () => {
               <li><a href="#" className="hover:text-foreground transition-colors">Ajuda</a></li>
             </ul>
           </div>
-          
+
           {/* Legal */}
           <div className="space-y-4">
             <h4 className="font-semibold">Legal</h4>
@@ -40,7 +40,7 @@ export const Footer = () => {
               <li><a href="#" className="hover:text-foreground transition-colors">Transparência</a></li>
             </ul>
           </div>
-          
+
           {/* Contact */}
           <div className="space-y-4">
             <h4 className="font-semibold">Contato</h4>
@@ -60,7 +60,7 @@ export const Footer = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="border-t border-border pt-8 mt-8 text-center text-sm text-muted-foreground">
           <p>&copy; 2025 - LicitaMax. Todos os direitos reservados.</p>
           <p className="mt-1">Dados extraídos de fontes oficiais do governo brasileiro</p>
