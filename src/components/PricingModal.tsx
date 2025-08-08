@@ -29,134 +29,120 @@ interface PricingModalProps {
 export const PricingModal = ({ open, onOpenChange }: PricingModalProps) => {
   const [showCheckout, setShowCheckout] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="text-center">
-          <DialogTitle className="text-2xl font-bold">
-            Escolha seu Plano
-          </DialogTitle>
-          <DialogDescription>
-            Desbloqueie todo o potencial da plataforma e acelere seus negócios
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="grid md:grid-cols-2 gap-6 mt-6">
-          {/* Free Plan */}
-          <div className="border border-border rounded-lg p-6 relative">
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold mb-2">Gratuito</h3>
-              <div className="text-3xl font-bold mb-1">R$ 0</div>
-              <div className="text-sm text-muted-foreground">Para sempre</div>
-            </div>
-            
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm">5 licitações por mês</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm">Visualização básica</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <X className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Download de editais</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <X className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Filtros avançados</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <X className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Notificações por email</span>
-              </li>
-            </ul>
-            
-            <Button variant="outline" className="w-full" disabled>
-              Plano Atual
-            </Button>
-          </div>
-          
-          {/* Premium Plan */}
-          <div className="border-2 border-premium rounded-lg p-6 relative bg-gradient-to-br from-premium/5 to-transparent">
-            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-premium text-premium-foreground">
-              <Crown className="h-3 w-3 mr-1" />
-              Mais Popular
-            </Badge>
-            
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold mb-2">Premium</h3>
-              <div className="text-3xl font-bold mb-1">R$ 97</div>
-              <div className="text-sm text-muted-foreground">por mês</div>
-            </div>
-            
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium">Licitações ilimitadas</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Download className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium">Download completo de editais</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium">Filtros avançados</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium">Notificações automáticas</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium">Relatórios personalizados</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium">Área de favoritos</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium">Sem anúncios</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium">Suporte prioritário</span>
-              </li>
-            </ul>
-            
-            <Button 
-              variant="premium" 
-              className="w-full" 
-              size="lg"
-              onClick={() => {
-                onOpenChange(false);
-                setShowCheckout(true);
-              }}
-            >
-              <CreditCard className="h-4 w-4 mr-2" />
-              Assinar Agora
-            </Button>
-            
-            <div className="text-center mt-3">
-              <p className="text-xs text-muted-foreground">
-                Cancele a qualquer momento
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Pagamento seguro via cartão de crédito ou PIX
-          </p>
+    <>
+   <Dialog open={open} onOpenChange={onOpenChange}>
+  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-10">
+    <DialogHeader className="text-center space-y-2">
+      <DialogTitle className="text-3xl font-extrabold tracking-tight">
+        Escolha seu <span className="text-sky-700">Plano</span>
+      </DialogTitle>
+      <DialogDescription className="text-base text-muted-foreground">
+        Desbloqueie todo o potencial da plataforma e acelere seus negócios
+      </DialogDescription>
+    </DialogHeader>
+
+    <div className="grid md:grid-cols-2 gap-8 mt-6">
+      {/* Free Plan */}
+      <div className="border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-all bg-background">
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-bold mb-1">Gratuito</h3>
+          <div className="text-4xl font-extrabold mb-1">R$ 0</div>
+          <p className="text-sm text-muted-foreground">Para sempre</p>
         </div>
 
-        <CheckoutModal 
-          open={showCheckout}
-          onOpenChange={setShowCheckout}
-        />
-      </DialogContent>
-    </Dialog>
+        <ul className="space-y-3 mb-8">
+          {[
+            { text: "5 licitações por mês", included: true },
+            { text: "Visualização básica", included: true },
+            { text: "Download de editais", included: false },
+            { text: "Filtros avançados", included: false },
+            { text: "Notificações por email", included: false },
+          ].map((item, i) => (
+            <li key={i} className="flex items-center gap-2">
+              {item.included ? (
+                <Check className="h-5 w-5 text-success" />
+              ) : (
+                <X className="h-5 w-5 text-muted-foreground" />
+              )}
+              <span
+                className={`text-sm ${
+                  item.included
+                    ? "text-foreground"
+                    : "text-muted-foreground line-through"
+                }`}
+              >
+                {item.text}
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <Button variant="outline" className="w-full bg-slate-200 border-slate-300" disabled>
+          Plano Atual
+        </Button>
+      </div>
+
+      {/* Premium Plan */}
+      <div className="w-full relative rounded-xl p-6 border-2 border-premium bg-gradient-to-br from-premium/10 via-premium/5 to-transparent shadow-md hover:shadow-lg transition-all">
+        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-premium text-premium-foreground px-3 py-1 text-xs font-semibold">
+          <Crown className="h-3 w-3 mr-1" />
+          Mais Popular
+        </Badge>
+
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-bold mb-1">Premium</h3>
+          <div className="text-4xl font-extrabold mb-1">R$ 97</div>
+          <p className="text-sm text-muted-foreground">por mês</p>
+        </div>
+
+        <ul className="space-y-3 mb-8">
+          {[
+            { icon: <Check className="h-5 w-5 text-success" />, text: "Licitações ilimitadas" },
+            { icon: <Download className="h-5 w-5 text-success" />, text: "Download completo de editais" },
+            { icon: <Zap className="h-5 w-5 text-success" />, text: "Filtros avançados" },
+            { icon: <Bell className="h-5 w-5 text-success" />, text: "Notificações automáticas" },
+            { icon: <FileText className="h-5 w-5 text-success" />, text: "Relatórios personalizados" },
+            { icon: <Star className="h-5 w-5 text-success" />, text: "Área de favoritos" },
+            { icon: <Check className="h-5 w-5 text-success" />, text: "Sem anúncios" },
+            { icon: <Check className="h-5 w-5 text-success" />, text: "Suporte prioritário" },
+          ].map((item, i) => (
+            <li key={i} className="flex items-center gap-2">
+              {item.icon}
+              <span className="text-sm font-medium">{item.text}</span>
+            </li>
+          ))}
+        </ul>
+
+     <Button
+  variant="premium"
+  className="w-full h-12 text-lg font-semibold shadow-md hover:shadow-premium/20 transition-all"
+  onClick={() => {
+    setShowCheckout(true); // abre o checkout
+    onOpenChange(false); // fecha pricing
+  }}
+>
+  <CreditCard className="h-5 w-5 mr-2" />
+  Assinar Agora
+</Button>
+
+        <p className="text-xs text-center text-muted-foreground mt-3">
+          Cancele a qualquer momento
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-6 text-center">
+      <p className="text-sm text-muted-foreground">
+        Pagamento seguro via cartão de crédito ou PIX
+      </p>
+    </div>
+
+  </DialogContent>
+</Dialog>
+  <CheckoutModal open={showCheckout} onOpenChange={setShowCheckout} />
+
+      </>
+  
   );
+  
 };

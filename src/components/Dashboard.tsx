@@ -25,7 +25,7 @@ const mockBiddings = [
     title: "Construção de ponte sobre o Rio Tietê na região metropolitana",
     value: "R$ 15.600.000",
     agency: "Governo do Estado de São Paulo",
-    location: "São Paulo, SP", 
+    location: "São Paulo, SP",
     deadline: "28/02/2024",
     category: "Obras Públicas",
     isPremium: true,
@@ -114,13 +114,13 @@ export const Dashboard = () => {
   const [showPricing, setShowPricing] = useState(false);
   const [selectedBidding, setSelectedBidding] = useState<typeof mockBiddings[0] | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  
+
   // Estados dos filtros
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [sortBy, setSortBy] = useState("relevant");
-  
+
   // Paginação
   const [displayCount, setDisplayCount] = useState(6);
   const [isLoading, setIsLoading] = useState(false);
@@ -216,10 +216,13 @@ export const Dashboard = () => {
   };
 
   const handleBiddingClick = (bidding: typeof mockBiddings[0]) => {
-    setSelectedBidding(bidding);
-    setShowDetailModal(true);
+    if (bidding.isPremium && bidding.isLocked) {
+      setShowPricing(true);
+    } else {
+      setSelectedBidding(bidding);
+      setShowDetailModal(true);
+    }
   };
-
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Alert for free users - mantido original */}
@@ -234,8 +237,8 @@ export const Dashboard = () => {
               </p>
             </div>
           </div>
-          <Button 
-            variant="premium" 
+          <Button
+            variant="premium"
             onClick={() => setShowPricing(true)}
             className="shrink-0"
           >
@@ -263,60 +266,60 @@ export const Dashboard = () => {
             <Filter className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">Filtros</span>
           </div>
-          
+
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             {/* Filtros por categoria */}
             <div className="flex flex-wrap items-center gap-2">
-              <Button 
-                variant={categoryFilter === "all" ? "default" : "outline"} 
+              <Button
+                variant={categoryFilter === "all" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setCategoryFilter("all")}
                 className="transition-all hover:scale-105"
               >
                 Todas
               </Button>
-              <Button 
-                variant={categoryFilter === "technology" ? "default" : "outline"} 
+              <Button
+                variant={categoryFilter === "technology" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setCategoryFilter("technology")}
                 className="transition-all hover:scale-105"
               >
                 Tecnologia
               </Button>
-              <Button 
-                variant={categoryFilter === "construction" ? "default" : "outline"} 
+              <Button
+                variant={categoryFilter === "construction" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setCategoryFilter("construction")}
                 className="transition-all hover:scale-105"
               >
                 Obras Públicas
               </Button>
-              <Button 
-                variant={categoryFilter === "health" ? "default" : "outline"} 
+              <Button
+                variant={categoryFilter === "health" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setCategoryFilter("health")}
                 className="transition-all hover:scale-105"
               >
                 Saúde
               </Button>
-              <Button 
-                variant={categoryFilter === "services" ? "default" : "outline"} 
+              <Button
+                variant={categoryFilter === "services" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setCategoryFilter("services")}
                 className="transition-all hover:scale-105"
               >
                 Serviços
               </Button>
-              <Button 
-                variant={categoryFilter === "consulting" ? "default" : "outline"} 
+              <Button
+                variant={categoryFilter === "consulting" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setCategoryFilter("consulting")}
                 className="transition-all hover:scale-105"
               >
                 Consultoria
               </Button>
-              <Button 
-                variant={categoryFilter === "materials" ? "default" : "outline"} 
+              <Button
+                variant={categoryFilter === "materials" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setCategoryFilter("materials")}
                 className="transition-all hover:scale-105"
@@ -324,7 +327,7 @@ export const Dashboard = () => {
                 Materiais
               </Button>
             </div>
-            
+
             {/* Selects de ordenação e localização */}
             <div className="flex items-center gap-3">
               <Select value={sortBy} onValueChange={setSortBy}>
@@ -356,9 +359,9 @@ export const Dashboard = () => {
                 </SelectContent>
               </Select>
 
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   setSearchTerm("");
                   setCategoryFilter("all");
@@ -379,8 +382,8 @@ export const Dashboard = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <h2 className="text-3xl font-bold">
-            {searchTerm || categoryFilter !== "all" || locationFilter !== "all" 
-              ? "Resultados da Busca" 
+            {searchTerm || categoryFilter !== "all" || locationFilter !== "all"
+              ? "Resultados da Busca"
               : "Licitações em Destaque"
             }
           </h2>
@@ -390,17 +393,18 @@ export const Dashboard = () => {
           </Badge>
         </div>
       </div>
-      
+
       {/* Cards com funcionalidade de clique */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {displayedBiddings.map((bidding) => (
-          <div 
+          <div
             key={bidding.id}
-            className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/30 cursor-pointer"
-            onClick={() => handleBiddingClick(bidding)}
+            className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/30"
           >
             <BiddingCard
               {...bidding}
+              onClick={() => handleBiddingClick(bidding)}
+
             />
           </div>
         ))}
@@ -416,7 +420,7 @@ export const Dashboard = () => {
           <p className="text-muted-foreground mb-4">
             Tente ajustar seus filtros ou termos de busca
           </p>
-          <Button 
+          <Button
             variant="outline"
             onClick={() => {
               setSearchTerm("");
@@ -428,13 +432,13 @@ export const Dashboard = () => {
           </Button>
         </div>
       )}
-      
+
       {/* Carregar mais */}
       {hasMore && filteredBiddings.length > 0 && (
         <div className="text-center mt-8">
-          <Button 
-            variant="outline" 
-            size="lg" 
+          <Button
+            variant="outline"
+            size="lg"
             onClick={handleLoadMore}
             disabled={isLoading}
             className="hover:bg-primary/10 hover:text-primary transition-colors"
@@ -454,9 +458,9 @@ export const Dashboard = () => {
         </div>
       )}
 
-      <PricingModal 
-        open={showPricing} 
-        onOpenChange={setShowPricing} 
+      <PricingModal
+        open={showPricing}
+        onOpenChange={setShowPricing}
       />
 
       <BiddingDetailModal

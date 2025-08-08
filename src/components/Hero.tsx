@@ -3,9 +3,17 @@ import { Gift, Search, Bell } from "lucide-react"; // Ícones do lucide-react
 import backgroundHero from '../assets/images/background.svg';
 import scrollTo from '../assets/images/scroll.png';
 import './Hero.css';
+import { PricingModal } from "./PricingModal";
+
 
 const Hero: React.FC = () => {
+
+      const [showPricing, setShowPricing] = React.useState(false);
+      const handlePricingClick = () => {
+        setShowPricing(true);
+      };
   return (
+    <div>
     <div className="hero-container">
       <div className="hero-background" style={{ backgroundImage: `url(${backgroundHero})` }} />
       <div className="hero-content">
@@ -20,7 +28,7 @@ const Hero: React.FC = () => {
           </p>
 
           <div className="hero-buttons">
-            <a href="#planos" className="hero-button-primary">
+            <a href="#planos" className="hero-button-primary" onClick={() => handlePricingClick()}>
               Conhecer planos
             </a>
             <a href="#demo" className="hero-button-secondary">
@@ -75,6 +83,11 @@ const Hero: React.FC = () => {
           <div className="scroll-to-content"><img src={scrollTo} alt="Scroll to content" /></div></div>
 
       </div>
+    </div>
+     <PricingModal 
+        open={showPricing} 
+        onOpenChange={setShowPricing} 
+      />
     </div>
   );
 };

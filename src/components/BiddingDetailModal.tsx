@@ -23,7 +23,7 @@ interface BiddingDetailModalProps {
 }
 
 export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: BiddingDetailModalProps) => {
-  const [downloadingStates, setDownloadingStates] = useState<{[key: string]: boolean}>({});
+  const [downloadingStates, setDownloadingStates] = useState<{ [key: string]: boolean }>({});
   const [downloadingAll, setDownloadingAll] = useState(false);
   const { toast } = useToast();
 
@@ -34,17 +34,17 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
       onUpgrade();
       return;
     }
-    
+
     const docKey = docIndex !== undefined ? `doc-${docIndex}` : 'all';
     setDownloadingStates(prev => ({ ...prev, [docKey]: true }));
-    
+
     try {
       // Simular download
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       toast({
         title: "Download concluído",
-        description: docIndex !== undefined 
+        description: docIndex !== undefined
           ? `${mockDetails.documentos[docIndex].nome} foi baixado com sucesso.`
           : "Todos os documentos foram baixados com sucesso.",
       });
@@ -64,13 +64,13 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
       onUpgrade();
       return;
     }
-    
+
     setDownloadingAll(true);
-    
+
     try {
       // Simular download de todos os documentos
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       toast({
         title: "Download completo",
         description: `Todos os ${mockDetails.documentos.length} documentos foram baixados com sucesso.`,
@@ -109,7 +109,7 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-8">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold pr-8">{bidding.title}</DialogTitle>
         </DialogHeader>
@@ -151,7 +151,7 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
 
           {/* Badges e status */}
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary">{bidding.category}</Badge>
+            <Badge variant="default">{bidding.category}</Badge>
             <Badge variant="outline">{mockDetails.modalidade}</Badge>
             <Badge variant="outline">{mockDetails.numero}</Badge>
             {bidding.isPremium && (
@@ -171,7 +171,7 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
           <Separator />
 
           {/* Informações detalhadas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-14">
             <div>
               <h3 className="font-semibold mb-3">Informações da Licitação</h3>
               <div className="space-y-2">
@@ -207,7 +207,12 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Email:</span>
-                  <span className="text-sm">{mockDetails.contato.email}</span>
+                  <a
+                    href={`mailto:${mockDetails.contato.email}`}
+                    className="text-sky-600 cursor-pointer hover:underline"
+                  >
+                    {mockDetails.contato.email}
+                  </a>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Telefone:</span>

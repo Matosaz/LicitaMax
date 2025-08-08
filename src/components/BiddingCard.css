@@ -1,16 +1,15 @@
 .bidding-card {
     transition: all 0.3s ease;
     position: relative;
-    border-radius: 12px;
-    box-shadow: 0px 2px 9px -1px rgba(0, 0, 0, 0.15);
+    border-radius: 12px !important;
+    box-shadow: 0px 2px 9px -1px rgba(0, 0, 0, 0.15) !important;
     overflow: hidden;
-    background-color: white;
+    background-color: #fafafa !important;
 }
 
 .bidding-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02),
-                0 8px 24px rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+    border-color: rgba(54, 108, 207, 0.489) !important;
 }
 
 .card-title {
@@ -25,3 +24,6 @@
     transition: color 0.3s ease;
 }
 
+.card-title:hover {
+    color: #1a73e8 !important;
+}
