@@ -2,8 +2,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Download, Calendar, MapPin, Building, DollarSign, Lock, Crown, FileText, Clock, User } from "lucide-react";
+import { Download, Calendar, MapPin, Building, DollarSign, Lock, Crown, FileText, Clock, User, PackageOpen } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface BiddingDetailModalProps {
   bidding: {
@@ -22,20 +23,67 @@ interface BiddingDetailModalProps {
 }
 
 export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: BiddingDetailModalProps) => {
-  const [downloading, setDownloading] = useState(false);
+  const [downloadingStates, setDownloadingStates] = useState<{[key: string]: boolean}>({});
+  const [downloadingAll, setDownloadingAll] = useState(false);
+  const { toast } = useToast();
 
   if (!bidding) return null;
 
-  const handleDownload = async () => {
+  const handleDownload = async (docIndex?: number) => {
     if (bidding.isLocked) {
       onUpgrade();
       return;
     }
     
-    setDownloading(true);
-    // Simular download
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setDownloading(false);
+    const docKey = docIndex !== undefined ? `doc-${docIndex}` : 'all';
+    setDownloadingStates(prev => ({ ...prev, [docKey]: true }));
+    
+    try {
+      // Simular download
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "Download concluído",
+        description: docIndex !== undefined 
+          ? `${mockDetails.documentos[docIndex].nome} foi baixado com sucesso.`
+          : "Todos os documentos foram baixados com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro no download",
+        description: "Ocorreu um erro ao baixar o arquivo. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingStates(prev => ({ ...prev, [docKey]: false }));
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    if (bidding.isLocked) {
+      onUpgrade();
+      return;
+    }
+    
+    setDownloadingAll(true);
+    
+    try {
+      // Simular download de todos os documentos
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      toast({
+        title: "Download completo",
+        description: `Todos os ${mockDetails.documentos.length} documentos foram baixados com sucesso.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro no download",
+        description: "Ocorreu um erro ao baixar os arquivos. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingAll(false);
+    }
   };
 
   const mockDetails = {
@@ -171,45 +219,71 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
 
           <Separator />
 
-          {/* Documentos */}
+          {/* Documentos com header melhorado */}
           <div>
-            <h3 className="font-semibold mb-3">Documentos Disponíveis</h3>
-            <div className="space-y-2">
-              {mockDetails.documentos.map((doc, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{doc.nome}</p>
-                      <p className="text-xs text-muted-foreground">{doc.tipo} • {doc.tamanho}</p>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">Documentos Disponíveis</h3>
+              {!bidding.isLocked && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleDownloadAll}
+                  disabled={downloadingAll}
+                  className="flex items-center gap-2"
+                >
+                  {downloadingAll ? (
+                    <>
+                      <Clock className="h-4 w-4 animate-spin" />
+                      Baixando Todos...
+                    </>
+                  ) : (
+                    <>
+                      <PackageOpen className="h-4 w-4" />
+                      Baixar Todos
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+            <div className="space-y-3">
+              {mockDetails.documentos.map((doc, index) => {
+                const isDownloading = downloadingStates[`doc-${index}`];
+                return (
+                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">{doc.nome}</p>
+                        <p className="text-sm text-muted-foreground">{doc.tipo} • {doc.tamanho}</p>
+                      </div>
                     </div>
+                    <Button
+                      variant={bidding.isLocked ? "outline" : "secondary"}
+                      size="sm"
+                      onClick={() => handleDownload(index)}
+                      disabled={isDownloading}
+                      className="flex items-center gap-2 min-w-[100px]"
+                    >
+                      {bidding.isLocked ? (
+                        <>
+                          <Lock className="h-4 w-4" />
+                          Bloqueado
+                        </>
+                      ) : isDownloading ? (
+                        <>
+                          <Clock className="h-4 w-4 animate-spin" />
+                          Baixando...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4" />
+                          Download
+                        </>
+                      )}
+                    </Button>
                   </div>
-                  <Button
-                    variant={bidding.isLocked ? "outline" : "default"}
-                    size="sm"
-                    onClick={handleDownload}
-                    disabled={downloading}
-                    className="flex items-center gap-2"
-                  >
-                    {bidding.isLocked ? (
-                      <>
-                        <Lock className="h-4 w-4" />
-                        Bloqueado
-                      </>
-                    ) : downloading ? (
-                      <>
-                        <Clock className="h-4 w-4 animate-spin" />
-                        Baixando...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="h-4 w-4" />
-                        Download
-                      </>
-                    )}
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

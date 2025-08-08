@@ -15,8 +15,11 @@ import {
   FileText, 
   Star,
   Zap,
-  X 
+  X,
+  CreditCard
 } from "lucide-react";
+import { useState } from "react";
+import { CheckoutModal } from "./CheckoutModal";
 
 interface PricingModalProps {
   open: boolean;
@@ -24,6 +27,7 @@ interface PricingModalProps {
 }
 
 export const PricingModal = ({ open, onOpenChange }: PricingModalProps) => {
+  const [showCheckout, setShowCheckout] = useState(false);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -121,9 +125,17 @@ export const PricingModal = ({ open, onOpenChange }: PricingModalProps) => {
               </li>
             </ul>
             
-            <Button variant="premium" className="w-full" size="lg">
-              <Crown className="h-4 w-4 mr-2" />
-              Começar Agora
+            <Button 
+              variant="premium" 
+              className="w-full" 
+              size="lg"
+              onClick={() => {
+                onOpenChange(false);
+                setShowCheckout(true);
+              }}
+            >
+              <CreditCard className="h-4 w-4 mr-2" />
+              Assinar Agora
             </Button>
             
             <div className="text-center mt-3">
@@ -139,6 +151,11 @@ export const PricingModal = ({ open, onOpenChange }: PricingModalProps) => {
             Pagamento seguro via cartão de crédito ou PIX
           </p>
         </div>
+
+        <CheckoutModal 
+          open={showCheckout}
+          onOpenChange={setShowCheckout}
+        />
       </DialogContent>
     </Dialog>
   );
