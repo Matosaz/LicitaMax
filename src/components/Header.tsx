@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Search, User, Crown, FileText } from "lucide-react";
-import "./header.css"; // Importe o CSS separado
+import "./Header.css"; // Importe o CSS separado
 import LicitaLogo from '../assets/images/Logo.png'; // Importe o logo
 export const Header = () => {
   return (
