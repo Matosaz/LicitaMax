@@ -14,8 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
+          auth_uid: string | null
           email: string
           id: number
           name: string
@@ -23,6 +51,7 @@ export type Database = {
           role: string
         }
         Insert: {
+          auth_uid?: string | null
           email: string
           id?: number
           name: string
@@ -30,6 +59,7 @@ export type Database = {
           role: string
         }
         Update: {
+          auth_uid?: string | null
           email?: string
           id?: number
           name?: string
