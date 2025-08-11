@@ -5,6 +5,8 @@ import {
   DialogTitle,
   DialogDescription 
 } from "@/components/ui/dialog";
+import { useUser } from "../UserContext";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -18,8 +20,9 @@ import {
   X,
   CreditCard
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckoutModal } from "./CheckoutModal";
+
 
 interface PricingModalProps {
   open: boolean;
@@ -27,14 +30,25 @@ interface PricingModalProps {
 }
 
 export const PricingModal = ({ open, onOpenChange }: PricingModalProps) => {
+
   const [showCheckout, setShowCheckout] = useState(false);
+
+  const [firstName, setFirstName] = useState("Usuário");
+  const { user } = useUser();
+
+ useEffect(() => {
+    if (user && user.name) {
+      setFirstName(user.name.split(' ')[0]);
+    }
+  }, [user]);
+
   return (
     <>
    <Dialog open={open} onOpenChange={onOpenChange}>
   <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-10">
     <DialogHeader className="text-center space-y-2">
       <DialogTitle className="text-3xl font-extrabold tracking-tight">
-        Escolha seu <span className="text-sky-700">Plano</span>
+        Escolha seu <span className="text-sky-700">Plano Licita</span>, {firstName}
       </DialogTitle>
       <DialogDescription className="text-base text-muted-foreground">
         Desbloqueie todo o potencial da plataforma e acelere seus negócios

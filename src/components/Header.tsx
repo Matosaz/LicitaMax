@@ -4,13 +4,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import "./Header.css"; // Importe o CSS separado
 import LicitaLogo from '../assets/images/Logo.png'; // Importe o logo
+import { useUser } from "@/UserContext";
 export const Header = () => {
-  const { user, signOut } = useAuth();
+  const { user, isLoggedIn, logout } = useUser();
   const navigate = useNavigate();
 
   const handleAuthAction = () => {
     if (user) {
-      signOut();
+      logout();
     } else {
       navigate("/auth");
     }
@@ -38,7 +39,7 @@ export const Header = () => {
             <>
               <div className="header-user-status">
                 <User className="h-4 w-4" />
-                <span>Usuário Gratuito</span>
+                <span>Conta Gratuita</span>
                 <span className="header-user-limit">
                   3/5
                 </span>
