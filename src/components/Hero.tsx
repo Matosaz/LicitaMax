@@ -9,8 +9,8 @@ import { useUser } from "@/UserContext";
 
 const Hero: React.FC = () => {
   const [firstName, setFirstName] = useState("Usuário");
-
   const { user } = useUser();
+  const isLoggedIn = !!user;
   const [showPricing, setShowPricing] = React.useState(false);
   const handlePricingClick = () => {
     setShowPricing(true);
@@ -25,11 +25,10 @@ const Hero: React.FC = () => {
   return (
     <div>
       <div className="hero-container">
-        <div className="hero-background" style={{ backgroundImage: `url(${backgroundHero})` }} />
         <div className="hero-content">
           <div className="text-center">
             <h1 className="hero-heading">
-              Encontre as melhores <span className="text-indigo-600">licitações</span> para seu negócio, {firstName}
+                Encontre as melhores <span className="text-indigo-600">licitações</span> para seu negócio{isLoggedIn && `, ${firstName}!`}
             </h1>
 
             <p className="hero-subtitle">

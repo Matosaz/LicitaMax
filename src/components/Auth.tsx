@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Crown, Eye, EyeOff } from "lucide-react";
 import { useUser } from "@/UserContext";
 import LicitaLogo from '../assets/images/Logo.png';
+import LicitaBg from '../assets/images/Authbg.png';
 import './Auth.css'
 
 export default function Auth() {
@@ -102,7 +103,13 @@ useEffect(() => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-bl from-slate-50 to-sky-50 flex items-center justify-center p-4">
+    <div className=" min-h-screen bg-gradient-to-bl from-slate-50 to-sky-50 flex items-center justify-center p-4"
+    // style={{
+    //   backgroundImage: `url(${LicitaBg})`,
+    //   backgroundSize: 'cover',
+    //   backgroundPosition: 'center',
+    // }}
+    >
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-6">
