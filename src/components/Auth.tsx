@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,9 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Crown, Eye, EyeOff } from "lucide-react";
 import { useUser } from "@/UserContext";
-import LicitaLogo from '../assets/images/Logo.png';
+import LicitaLogo from '../assets/images/TesteIcon2.png';
 import LicitaBg from '../assets/images/Authbg.png';
 import './Auth.css'
+import { set } from "date-fns";
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,20 +22,53 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [tabValue, setTabValue] = useState("login");
   const { setUser } = useUser();
-
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [passwordFocus, setPasswordFocus] = useState(false);
+  const [passwordValidations, setPasswordValidations] = useState({
+    minLength: false,
+    hasNumber: false,
+    hasSpecialChar: false,
+    uppercase: false,
+    lowercase: false,
+  });
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && window.location.pathname === "/login") {
+        // só redireciona se estiver em outra página que não login
+        navigate("/");
+      }
+    };
+    checkUser();
+  }, [navigate]);
 
-useEffect(() => {
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session && window.location.pathname === "/login") {
-      // só redireciona se estiver em outra página que não login
-      navigate("/");
-    }
-  };
-  checkUser();
-}, [navigate]);
+
+  useEffect(() => {
+    const validatePassword = () => {
+      const minLength = password.length >= 8;
+      const hasNumber = /\d/.test(password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      const uppercase = /[A-Z]/.test(password);
+      const lowercase = /[a-z]/.test(password);
+
+      setPasswordValidations({
+        minLength,
+        hasNumber,
+        hasSpecialChar,
+        uppercase,
+        lowercase,
+      });
+    };
+
+
+    validatePassword();
+  }, [password]);
+
+  const validationStyle = (valid: boolean) => ({
+    color: valid ? "green" : "red",
+    fontWeight: valid ? "600" : "400",
+  });
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +76,14 @@ useEffect(() => {
       toast({ title: "Erro", description: "Preencha todos os campos.", variant: "destructive" });
       return;
     }
-
+  if (Object.values(passwordValidations).includes(false)) {
+    toast({
+      title:"Senha inválida",
+      description: "A senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.",
+      variant: "warning"
+    });
+    return;
+  }
     setIsLoading(true);
 
     try {
@@ -53,11 +94,24 @@ useEffect(() => {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        toast({ title: "Erro no cadastro", description: data.message || "Erro desconhecido", variant: "destructive" });
+        if (response.status === 409) {
+          toast({
+            title: "Email já cadastrado",
+            description: "Conta já cadastrada. Tente efetuar login",
+            variant: "destructive",
+          });
+        } else if (Object.values(passwordValidations).includes(false)) {
+          toast({
+            title: "Senha inválida",
+            description: "A senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.",
+            variant: "warning"
+          })
+        }
       } else {
-        toast({ title: "Cadastro realizado!", description: "Faça login para continuar.", variant: "default" });
-        // Opcional: redirecionar para login
+        setTabValue("login");
+
+        toast({ title: "Cadastro realizado!", description: "Faça login para continuar.", variant: "success" });
+     
       }
     } catch (error) {
       toast({ title: "Erro no cadastro", description: String(error), variant: "destructive" });
@@ -69,8 +123,10 @@ useEffect(() => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast({ title: "Erro", description: "Preencha email e senha.", variant: "destructive" });
+
+
+    if (!email || !password ) {
+      toast({ title: "Erro", description: "Preencha todos os.", variant: "warning" });
       return;
     }
 
@@ -85,17 +141,37 @@ useEffect(() => {
       const data = await response.json();
 
       if (!response.ok) {
-        toast({ title: "Erro no login", description: data.message || "Erro desconhecido", variant: "destructive" });
-      } else {
-        // Salvar token JWT no localStorage ou contexto
-        localStorage.setItem("token", data.token);
-        setUser({ name: data.name, email: data.email }); // ajuste conforme a resposta da API
 
-        toast({ title: "Login realizado!", description: "Bem-vindo!", variant: "default" });
+        // 🔹 Trata erro de credenciais inválidas
+        if (data.message?.toLowerCase().includes("credenciais inválidas")) {
+          toast({
+            title: "Credenciais inválidas",
+            description: "Verifique seu email e senha e tente novamente.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Erro no login",
+            description: data.message || "Erro desconhecido",
+            variant: "destructive"
+          });
+        }
+      } else {
+        localStorage.setItem("token", data.data.token);
+        setUser({
+          name: data.data.name,
+          email: data.data.email,
+          });
+
+        toast({ title: "Bem vindo!", description: "Login realizado com sucesso!", variant: "success" });
         navigate("/");
       }
     } catch (error) {
-      toast({ title: "Erro no login", description: String(error), variant: "destructive" });
+      toast({
+        title: "Erro no login",
+        description: "Não foi possível conectar ao servidor. Tente novamente mais tarde.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -104,11 +180,11 @@ useEffect(() => {
 
   return (
     <div className=" min-h-screen bg-gradient-to-bl from-slate-50 to-sky-50 flex items-center justify-center p-4"
-    // style={{
-    //   backgroundImage: `url(${LicitaBg})`,
-    //   backgroundSize: 'cover',
-    //   backgroundPosition: 'center',
-    // }}
+    style={{
+      backgroundImage: `url(${LicitaBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }}
     >
       <div className="w-full max-w-md">
         {/* Logo */}
@@ -190,6 +266,7 @@ useEffect(() => {
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10 pr-10"
                         required
+
                       />
                       <button
                         type="button"
@@ -263,7 +340,8 @@ useEffect(() => {
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10 pr-10"
                         required
-                        minLength={6}
+                        minLength={8}
+                        onFocus={() => setPasswordFocus(true)}
                       />
                       <button
                         type="button"
@@ -273,12 +351,33 @@ useEffect(() => {
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
+
+                    {/* Tooltips de validação */}
+                    {passwordFocus && (
+                      <ul className="mt-1 space-y-1 text-xs">
+                        <li style={validationStyle(passwordValidations.minLength)}>
+                          {passwordValidations.minLength ? "✓" : "✗"} Pelo menos 8 caracteres
+                        </li>
+                        <li style={validationStyle(passwordValidations.uppercase)}>
+                          {passwordValidations.uppercase ? "✓" : "✗"} Ao mínimo 1 letra maiúscula
+                        </li>
+                        <li style={validationStyle(passwordValidations.lowercase)}>
+                          {passwordValidations.lowercase ? "✓" : "✗"} Ao mínimo 1 letra minúscula
+                        </li>
+                        <li style={validationStyle(passwordValidations.hasNumber)}>
+                          {passwordValidations.hasNumber ? "✓" : "✗"} Um número
+                        </li>
+                        <li style={validationStyle(passwordValidations.hasSpecialChar)}>
+                          {passwordValidations.hasSpecialChar ? "✓" : "✗"} Um caracter especial(ex: !@#$%^&*)
+                        </li>
+                      </ul>
+                    )}
                   </div>
 
                   <Button
                     type="submit"
                     className="w-full  rounded-2xl bg-gradient-primary hover:opacity-90 transition-opacity"
-                    disabled={isLoading}
+                    disabled={isLoading || Object.values(passwordValidations).includes(false)}
                   >
                     {isLoading ? "Criando conta..." : "Criar conta"}
                   </Button>

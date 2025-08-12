@@ -1,5 +1,5 @@
 import { FileText, Mail, Phone, MapPin } from "lucide-react";
-import LicitaLogo from '../assets/images/Logo.png'; // Importe o logo
+import LicitaLogo from '../assets/images/Icon.png'; // Importe o logo
 export const Footer = () => {
   return (
     <footer className="bg-secondary border-t border-border mt-16">

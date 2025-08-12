@@ -9,6 +9,10 @@
     padding-top: 70px;
 }
 
+.header-container img {
+  width: 40px !important;
+  height: 40px !important;
+}
 
 .hero-content {
     position: relative;

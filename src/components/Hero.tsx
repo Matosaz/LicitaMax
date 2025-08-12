@@ -8,20 +8,15 @@ import { useUser } from "@/UserContext";
 
 
 const Hero: React.FC = () => {
-  const [firstName, setFirstName] = useState("Usuário");
   const { user } = useUser();
+  const firstName = user?.name?.split(' ')[0] || "Usuário";
   const isLoggedIn = !!user;
   const [showPricing, setShowPricing] = React.useState(false);
   const handlePricingClick = () => {
     setShowPricing(true);
   };
 
-  useEffect(() => {
-    if (user && user.name) {
-      setFirstName(user.name.split(' ')[0]);
-    }
-  }, [user]);
-
+  
   return (
     <div>
       <div className="hero-container">
