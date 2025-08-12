@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./components/Auth";
+import Profile from "./pages/Profile";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 import { UserProvider } from "./UserContext";
 
@@ -22,6 +24,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/favorites" element={<Favorites />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

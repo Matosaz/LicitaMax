@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Search, User, Crown, FileText, LogOut } from "lucide-react";
+import { Search, User, Crown, FileText, LogOut, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import "./Header.css"; // Importe o CSS separado
@@ -45,19 +45,29 @@ export const Header = () => {
                 </span>
               </div>
 
-              <Button variant="premium" size="sm" className="header-upgrade-btn">
-                <Crown className="h-4 w-4" />
-                Upgrade Pro
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate('/favorites')}
+                className="ml-2"
+              >
+                <Heart className="h-4 w-4" />
+                Favoritos
               </Button>
 
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={handleAuthAction}
+                onClick={() => navigate('/profile')}
                 className="ml-2"
               >
-                <LogOut className="h-4 w-4" />
-                Sair
+                <User className="h-4 w-4" />
+                Perfil
+              </Button>
+
+              <Button variant="premium" size="sm" className="header-upgrade-btn">
+                <Crown className="h-4 w-4" />
+                Upgrade Pro
               </Button>
             </>
           ) : (

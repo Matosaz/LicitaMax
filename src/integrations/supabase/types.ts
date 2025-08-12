@@ -14,28 +14,70 @@ export type Database = {
   }
   public: {
     Tables: {
+      favorites: {
+        Row: {
+          bid_deadline: string | null
+          bid_description: string | null
+          bid_id: string
+          bid_title: string
+          bid_value: number | null
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          bid_deadline?: string | null
+          bid_description?: string | null
+          bid_id: string
+          bid_title: string
+          bid_value?: number | null
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          bid_deadline?: string | null
+          bid_description?: string | null
+          bid_id?: string
+          bid_title?: string
+          bid_value?: number | null
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
+          company: string | null
           created_at: string
           display_name: string | null
           id: string
+          phone: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          phone?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          phone?: string | null
           updated_at?: string
           user_id?: string
         }
