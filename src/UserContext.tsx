@@ -30,7 +30,7 @@ useEffect(() => {
     return;
   }
 
-  fetch("http://localhost:8080/api/auth/me", {
+  fetch("https://licitamaxbackend.onrender.com/api/auth/me", {
     headers: {
       "Authorization": `Bearer ${token}`,
     }

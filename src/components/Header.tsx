@@ -111,14 +111,14 @@ export const Header = () => {
               </Button>
 
               <Button
-                variant="ghost"
+                variant="default"
                 className="justify-start gap-2 text-destructive"
                 onClick={() => {
                   logout();
                   setIsOpen(false);
                 }}
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 " />
                 Sair
               </Button>
             </div>
@@ -207,6 +207,15 @@ export const Header = () => {
                   )}
                 </button>
               </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => navigate('/favorites')}
+                className="ml-1"
+              >
+                <LogOut className="botaosair" />
+                Sair
+              </Button>
             </>
           ) : (
             <Button
