@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,119 +9,48 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save, User, Phone, Building, FileText, LogOut } from 'lucide-react';
 
-interface Profile {
-  id: string;
-  user_id: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-  phone: string | null;
-  company: string | null;
-}
-
 export default function Profile() {
-  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  
+  // Mock data - replace with real authentication when backend is ready
+  const mockUser = {
+    email: 'usuario@exemplo.com',
+    id: '1'
+  };
+  
   const [formData, setFormData] = useState({
-    display_name: '',
-    bio: '',
-    phone: '',
-    company: ''
+    display_name: 'João Silva',
+    bio: 'Especialista em licitações públicas com mais de 10 anos de experiência no setor.',
+    phone: '(11) 99999-9999',
+    company: 'Empresa Exemplo Ltda'
   });
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-    
-    fetchProfile();
-  }, [user, navigate]);
-
-  const fetchProfile = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      if (data) {
-        setProfile(data);
-        setFormData({
-          display_name: data.display_name || '',
-          bio: data.bio || '',
-          phone: data.phone || '',
-          company: data.company || ''
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Erro ao carregar perfil"
-      });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
     setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          user_id: user.id,
-          display_name: formData.display_name,
-          bio: formData.bio,
-          phone: formData.phone,
-          company: formData.company,
-          updated_at: new Date().toISOString()
-        });
-
-      if (error) throw error;
-
+    
+    // Simulate API call
+    setTimeout(() => {
       toast({
         title: "Sucesso",
         description: "Perfil atualizado com sucesso!"
       });
-      
-      fetchProfile();
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Erro ao atualizar perfil"
-      });
-    }
-    setLoading(false);
+      setLoading(false);
+    }, 1000);
   };
 
-  const handleLogout = async () => {
-    await signOut();
+  const handleLogout = () => {
+    toast({
+      title: "Logout",
+      description: "Logout será implementado quando o backend estiver pronto"
+    });
     navigate('/');
   };
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -171,13 +99,13 @@ export default function Profile() {
               <Card>
                 <CardHeader className="text-center">
                   <Avatar className="h-24 w-24 mx-auto mb-4">
-                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarImage src={undefined} />
                     <AvatarFallback className="text-2xl">
-                      {formData.display_name ? formData.display_name[0].toUpperCase() : user.email?.[0].toUpperCase()}
+                      {formData.display_name ? formData.display_name[0].toUpperCase() : mockUser.email[0].toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <CardTitle>{formData.display_name || 'Usuário'}</CardTitle>
-                  <CardDescription>{user.email}</CardDescription>
+                  <CardDescription>{mockUser.email}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">

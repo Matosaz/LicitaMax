@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,11 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Heart, Calendar, DollarSign, Trash2, Building, Search } from 'lucide-react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 interface Favorite {
   id: string;
@@ -24,66 +20,47 @@ interface Favorite {
 }
 
 export default function Favorites() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
+  const [loading, setLoading] = useState(false);
+  
+  // Mock favorites data - replace with real data when backend is ready
+  const [favorites, setFavorites] = useState<Favorite[]>([
+    {
+      id: '1',
+      bid_id: 'LIC-2024-001',
+      bid_title: 'Aquisição de Material de Escritório para Secretaria Municipal',
+      bid_description: 'Processo licitatório para fornecimento de materiais de escritório diversos para atender as necessidades da Secretaria Municipal de Administração pelo período de 12 meses.',
+      bid_value: 45000,
+      bid_deadline: '2024-09-15',
+      created_at: '2024-08-10'
+    },
+    {
+      id: '2',
+      bid_id: 'LIC-2024-002',
+      bid_title: 'Contratação de Serviços de Limpeza e Conservação',
+      bid_description: 'Contratação de empresa especializada em serviços de limpeza e conservação para os prédios públicos municipais.',
+      bid_value: 120000,
+      bid_deadline: '2024-09-20',
+      created_at: '2024-08-12'
+    },
+    {
+      id: '3',
+      bid_id: 'LIC-2024-003',
+      bid_title: 'Aquisição de Equipamentos de Informática',
+      bid_description: 'Processo para aquisição de computadores, impressoras e equipamentos de TI para modernização do parque tecnológico municipal.',
+      bid_value: 85000,
+      bid_deadline: '2024-09-25',
+      created_at: '2024-08-14'
     }
-    
-    fetchFavorites();
-  }, [user, navigate]);
+  ]);
 
-  const fetchFavorites = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setFavorites(data || []);
-    } catch (error) {
-      console.error('Error fetching favorites:', error);
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Erro ao carregar favoritos"
-      });
-    }
-    setLoading(false);
-  };
-
-  const removeFavorite = async (favoriteId: string) => {
-    try {
-      const { error } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('id', favoriteId);
-
-      if (error) throw error;
-
-      setFavorites(favorites.filter(fav => fav.id !== favoriteId));
-      toast({
-        title: "Sucesso",
-        description: "Licitação removida dos favoritos"
-      });
-    } catch (error) {
-      console.error('Error removing favorite:', error);
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Erro ao remover favorito"
-      });
-    }
+  const removeFavorite = (favoriteId: string) => {
+    setFavorites(favorites.filter(fav => fav.id !== favoriteId));
+    toast({
+      title: "Sucesso",
+      description: "Licitação removida dos favoritos"
+    });
   };
 
   const formatCurrency = (value: number) => {
@@ -94,12 +71,8 @@ export default function Favorites() {
   };
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'dd/MM/yyyy', { locale: ptBR });
+    return new Date(dateString).toLocaleDateString('pt-BR');
   };
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background">
