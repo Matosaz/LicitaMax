@@ -3,7 +3,7 @@ import { Search, User, Crown, Star,FileText, LogOut, Heart, Menu, X } from "luci
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import "./Header.css";
-import LicitaLogo from '../assets/images/Testeicon2.png';
+import LicitaLogo from '../assets/images/TesteIcon2.png';
 import { useUser } from "@/UserContext";
 import { useState } from "react";
 import {
