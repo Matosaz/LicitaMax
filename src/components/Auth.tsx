@@ -76,14 +76,14 @@ export default function Auth() {
       toast({ title: "Erro", description: "Preencha todos os campos.", variant: "destructive" });
       return;
     }
-  if (Object.values(passwordValidations).includes(false)) {
-    toast({
-      title:"Senha inválida",
-      description: "A senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.",
-      variant: "warning"
-    });
-    return;
-  }
+    if (Object.values(passwordValidations).includes(false)) {
+      toast({
+        title: "Senha inválida",
+        description: "A senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.",
+        variant: "warning"
+      });
+      return;
+    }
     setIsLoading(true);
 
     try {
@@ -111,7 +111,7 @@ export default function Auth() {
         setTabValue("login");
 
         toast({ title: "Cadastro realizado!", description: "Faça login para continuar.", variant: "success" });
-     
+
       }
     } catch (error) {
       toast({ title: "Erro no cadastro", description: String(error), variant: "destructive" });
@@ -125,7 +125,7 @@ export default function Auth() {
     e.preventDefault();
 
 
-    if (!email || !password ) {
+    if (!email || !password) {
       toast({ title: "Erro", description: "Preencha todos os.", variant: "warning" });
       return;
     }
@@ -158,10 +158,16 @@ export default function Auth() {
         }
       } else {
         localStorage.setItem("token", data.data.token);
+        localStorage.setItem("user", JSON.stringify({
+          name: data.data.name,
+          email: data.data.email,
+        }));
+
         setUser({
           name: data.data.name,
           email: data.data.email,
-          });
+        });
+
 
         toast({ title: "Bem vindo!", description: "Login realizado com sucesso!", variant: "success" });
         navigate("/");
@@ -180,11 +186,11 @@ export default function Auth() {
 
   return (
     <div className=" min-h-screen bg-gradient-to-bl from-slate-50 to-sky-50 flex items-center justify-center p-4"
-    style={{
-      backgroundImage: `url(${LicitaBg})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    }}
+      style={{
+        backgroundImage: `url(${LicitaBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
       <div className="w-full max-w-md">
         {/* Logo */}

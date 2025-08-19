@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Building, Download, Eye, Lock, ChevronDown, ChevronUp, Crown } from "lucide-react";
 import { PricingModal } from "./PricingModal";
-import "./BiddingCard.css";
-
-interface BiddingCardProps {
+import { getAllBiddings, downloadBiddingDocument } from "@/integrations/biddingService";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import './BiddingCard.css'
+export interface BiddingCardProps {
+  id: string;
   title: string;
+  titleSummary?: string; // resumo fornecido pelo backend
   value: string;
   agency: string;
   location: string;
@@ -16,10 +20,17 @@ interface BiddingCardProps {
   isPremium?: boolean;
   isLocked?: boolean;
   onClick?: () => void;
-} 
-
+  documents?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    type: string;
+  }>;
+}
 export const BiddingCard = ({
+  id,
   title,
+  titleSummary,
   value,
   agency,
   location,
@@ -27,10 +38,11 @@ export const BiddingCard = ({
   category,
   isPremium = false,
   isLocked = false,
-  onClick
+  onClick,
+  documents = [],
 }: BiddingCardProps) => {
-  const [showPricing, setShowPricing] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
 
   const toggleDetails = () => {
     if (isPremium && !isLocked) {
@@ -42,21 +54,22 @@ export const BiddingCard = ({
     }
   };
 
+
   return (
     <Card className="group hover:shadow-card transition-all duration-300  relative overflow-hidden bidding-card">
       {isPremium && (
         <div className="absolute top-2 right-2 z-10">
           <Badge variant="secondary" className="bg-premium text-premium-foreground">
-            <Crown className="h-4 w-4 mr-1" />  
+            <Crown className="h-4 w-4 mr-1" />
             Premium
           </Badge>
         </div>
       )}
 
-      <CardHeader className="pb-3 card-title">
+      <CardHeader className="pb-3 card-bidding">
         <div className="flex items-start justify-between gap-2">
           <h3 className="card-title">
-            {title}
+          { showDetails ? title : titleSummary}
           </h3>
         </div>
 
@@ -74,6 +87,10 @@ export const BiddingCard = ({
 
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4 text-orange-600" />
+            <span className="text-orange-600">Prazo: {deadline}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Building className="h-4 w-4" />
             <span className="truncate">{agency}</span>
           </div>
@@ -83,10 +100,7 @@ export const BiddingCard = ({
             <span>{location}</span>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <span>Prazo: {deadline}</span>
-          </div>
+
         </div>
 
         {/* Detalhes expandíveis */}
@@ -124,11 +138,10 @@ export const BiddingCard = ({
           variant={isLocked ? "secondary" : "premium"}
           size="sm"
           disabled={isLocked}
-          className={`flex-1 rounded-md transition-all ${
-            isLocked
-              ? "bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed"
-              : "bg-emerald-500 text-white hover:bg-emerald-600"
-          }`}
+          className={`flex-1 rounded-md transition-all ${isLocked
+            ? "bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed"
+            : "bg-emerald-500 text-white hover:bg-emerald-600"
+            }`}
         >
           {isLocked ? (
             <>
@@ -149,10 +162,10 @@ export const BiddingCard = ({
           <div className="text-center p-4">
             <Lock className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
             <p className="text-sm font-medium mb-3">Conteúdo completo disponível apenas para usuários Premium</p>
-            <Button 
-              variant="premium" 
-              size="sm" 
-              className="shrink-0" 
+            <Button
+              variant="premium"
+              size="sm"
+              className="shrink-0"
               onClick={() => setShowPricing(true)}
             >
               Fazer Upgrade
@@ -161,10 +174,12 @@ export const BiddingCard = ({
         </div>
       )}
 
-      <PricingModal 
-        open={showPricing} 
-        onOpenChange={setShowPricing} 
+      <PricingModal
+        open={showPricing}
+        onOpenChange={setShowPricing}
       />
     </Card>
   );
 };
+
+

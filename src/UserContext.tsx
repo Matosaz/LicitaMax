@@ -1,4 +1,4 @@
-import React, { createContext, useContext,useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 interface User {
   name: string;
@@ -23,31 +23,41 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem("token");
   };
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    setLoading(false);
-    return;
-  }
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
-  fetch("https://licitamaxbackend.onrender.com/api/auth/me", {
-    headers: {
-      "Authorization": `Bearer ${token}`,
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("Token inválido ou expirado");
-    return res.json();
-  })
-  .then(data => {
-    setUser(data.data); // CORREÇÃO AQUI
-  })
-  .catch(() => {
-    localStorage.removeItem("token");
-    setUser(null);
-  })
-  .finally(() => setLoading(false));
-}, []);
+
+
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    fetch("https://licitamaxbackend.onrender.com/api/auth/me", {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Token inválido ou expirado");
+        return res.json();
+      })
+      .then(data => {
+        setUser(data.data);
+        localStorage.setItem("user", JSON.stringify(data.data));
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <UserContext.Provider
@@ -56,7 +66,7 @@ useEffect(() => {
         setUser,
         isLoggedIn: !!user,
         logout,
-        
+
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { BiddingCard } from "./BiddingCard";
 import { PricingModal } from "./PricingModal";
 import { BiddingDetailModal } from "./BiddingDetailModal";
@@ -7,222 +7,261 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { RefreshCw, TrendingUp, Crown, Search, Filter } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Bidding, getAllBiddings, BiddingResponse } from "@/integrations/biddingService";
+import { Skeleton } from "./ui/skeleton";
+import { useAuth } from "@/hooks/useAuth";
 // Expandindo o mock para incluir mais licitações
-const mockBiddings = [
-  {
-    id: 1,
-    title: "Aquisição de equipamentos de informática para secretaria de educação",
-    value: "R$ 2.400.000",
-    agency: "Prefeitura Municipal de São Paulo",
-    location: "São Paulo, SP",
-    deadline: "15/02/2024",
-    category: "Tecnologia",
-    isPremium: false,
-    isLocked: false,
-  },
-  {
-    id: 2,
-    title: "Construção de ponte sobre o Rio Tietê na região metropolitana",
-    value: "R$ 15.600.000",
-    agency: "Governo do Estado de São Paulo",
-    location: "São Paulo, SP",
-    deadline: "28/02/2024",
-    category: "Obras Públicas",
-    isPremium: true,
-    isLocked: true,
-  },
-  {
-    id: 3,
-    title: "Fornecimento de medicamentos para hospitais públicos da região",
-    value: "R$ 8.200.000",
-    agency: "Secretaria de Saúde do Estado",
-    location: "Rio de Janeiro, RJ",
-    deadline: "12/02/2024",
-    category: "Saúde",
-    isPremium: false,
-    isLocked: true,
-  },
-  {
-    id: 4,
-    title: "Serviços de limpeza urbana e coleta seletiva",
-    value: "R$ 3.800.000",
-    agency: "Prefeitura de Belo Horizonte",
-    location: "Belo Horizonte, MG",
-    deadline: "20/02/2024",
-    category: "Serviços",
-    isPremium: false,
-    isLocked: false,
-  },
-  {
-    id: 5,
-    title: "Contratação de consultoria em gestão pública digital",
-    value: "R$ 1.200.000",
-    agency: "Ministério da Economia",
-    location: "Brasília, DF",
-    deadline: "25/02/2024",
-    category: "Consultoria",
-    isPremium: true,
-    isLocked: true,
-  },
-  {
-    id: 6,
-    title: "Aquisição de uniformes escolares para rede municipal",
-    value: "R$ 950.000",
-    agency: "Secretaria Municipal de Educação",
-    location: "Salvador, BA",
-    deadline: "18/02/2024",
-    category: "Bens e Materiais",
-    isPremium: false,
-    isLocked: false,
-  },
-  {
-    id: 7,
-    title: "Sistema de videomonitoramento urbano inteligente",
-    value: "R$ 4.200.000",
-    agency: "Prefeitura do Recife",
-    location: "Recife, PE",
-    deadline: "22/02/2024",
-    category: "Tecnologia",
-    isPremium: true,
-    isLocked: true,
-  },
-  {
-    id: 8,
-    title: "Pavimentação asfáltica de vias públicas",
-    value: "R$ 12.800.000",
-    agency: "Prefeitura de Curitiba",
-    location: "Curitiba, PR",
-    deadline: "30/01/2024",
-    category: "Obras Públicas",
-    isPremium: false,
-    isLocked: false,
-  },
-  {
-    id: 9,
-    title: "Aquisição de ambulâncias para SAMU",
-    value: "R$ 6.500.000",
-    agency: "Secretaria de Saúde",
-    location: "Fortaleza, CE",
-    deadline: "10/02/2024",
-    category: "Saúde",
-    isPremium: true,
-    isLocked: true,
-  }
-];
+// const mockBiddings = [
+//   {
+//     id: 1,
+//     title: "Aquisição de equipamentos de informática para secretaria de educação",
+//     value: "R$ 2.400.000",
+//     agency: "Prefeitura Municipal de São Paulo",
+//     location: "São Paulo, SP",
+//     deadline: "15/02/2024",
+//     category: "Tecnologia",
+//     isPremium: false,
+//     isLocked: false,
+//   },
+//   {
+//     id: 2,
+//     title: "Construção de ponte sobre o Rio Tietê na região metropolitana",
+//     value: "R$ 15.600.000",
+//     agency: "Governo do Estado de São Paulo",
+//     location: "São Paulo, SP",
+//     deadline: "28/02/2024",
+//     category: "Obras Públicas",
+//     isPremium: true,
+//     isLocked: true,
+//   },
+//   {
+//     id: 3,
+//     title: "Fornecimento de medicamentos para hospitais públicos da região",
+//     value: "R$ 8.200.000",
+//     agency: "Secretaria de Saúde do Estado",
+//     location: "Rio de Janeiro, RJ",
+//     deadline: "12/02/2024",
+//     category: "Saúde",
+//     isPremium: false,
+//     isLocked: true,
+//   },
+//   {
+//     id: 4,
+//     title: "Serviços de limpeza urbana e coleta seletiva",
+//     value: "R$ 3.800.000",
+//     agency: "Prefeitura de Belo Horizonte",
+//     location: "Belo Horizonte, MG",
+//     deadline: "20/02/2024",
+//     category: "Serviços",
+//     isPremium: false,
+//     isLocked: false,
+//   },
+//   {
+//     id: 5,
+//     title: "Contratação de consultoria em gestão pública digital",
+//     value: "R$ 1.200.000",
+//     agency: "Ministério da Economia",
+//     location: "Brasília, DF",
+//     deadline: "25/02/2024",
+//     category: "Consultoria",
+//     isPremium: true,
+//     isLocked: true,
+//   },
+//   {
+//     id: 6,
+//     title: "Aquisição de uniformes escolares para rede municipal",
+//     value: "R$ 950.000",
+//     agency: "Secretaria Municipal de Educação",
+//     location: "Salvador, BA",
+//     deadline: "18/02/2024",
+//     category: "Bens e Materiais",
+//     isPremium: false,
+//     isLocked: false,
+//   },
+//   {
+//     id: 7,
+//     title: "Sistema de videomonitoramento urbano inteligente",
+//     value: "R$ 4.200.000",
+//     agency: "Prefeitura do Recife",
+//     location: "Recife, PE",
+//     deadline: "22/02/2024",
+//     category: "Tecnologia",
+//     isPremium: true,
+//     isLocked: true,
+//   },
+//   {
+//     id: 8,
+//     title: "Pavimentação asfáltica de vias públicas",
+//     value: "R$ 12.800.000",
+//     agency: "Prefeitura de Curitiba",
+//     location: "Curitiba, PR",
+//     deadline: "30/01/2024",
+//     category: "Obras Públicas",
+//     isPremium: false,
+//     isLocked: false,
+//   },
+//   {
+//     id: 9,
+//     title: "Aquisição de ambulâncias para SAMU",
+//     value: "R$ 6.500.000",
+//     agency: "Secretaria de Saúde",
+//     location: "Fortaleza, CE",
+//     deadline: "10/02/2024",
+//     category: "Saúde",
+//     isPremium: true,
+//     isLocked: true,
+//   }
+// ];
 
 export const Dashboard = () => {
+  const token = "123"; // fixo
+
+
   const [showPricing, setShowPricing] = useState(false);
-  const [selectedBidding, setSelectedBidding] = useState<typeof mockBiddings[0] | null>(null);
+  const [selectedBidding, setSelectedBidding] = useState<Bidding | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [biddings, setBiddings] = useState<Bidding[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Estados dos filtros
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [sortBy, setSortBy] = useState("relevant");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
-  // Paginação
-  const [displayCount, setDisplayCount] = useState(6);
-  const [isLoading, setIsLoading] = useState(false);
+  // Buscar licitações da API
 
-  // Filtros aplicados
-  const filteredBiddings = useMemo(() => {
-    let filtered = [...mockBiddings];
+  const fetchBiddings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    // Filtro por busca
-    if (searchTerm) {
-      filtered = filtered.filter(bidding =>
-        bidding.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        bidding.agency.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const today = new Date().toISOString().split('T')[0];
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
+      const startDate = twelveMonthsAgo.toISOString().split('T')[0];
+
+      const response = await getAllBiddings(startDate, today, pagination.page, pagination.pageSize);
+
+      const mappedBiddings = response.data.map((item: any) => ({
+        id: item.id_compra,
+        title: item.objeto || "Objeto não informado",
+        titleSummary: item.title_summary ?? item.objeto ?? "Sem título",
+        value: item.valor_estimado_total ? `R$ ${parseFloat(item.valor_estimado_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : "Valor não informado",
+        agency: item.orgao || "Órgão não informado",
+        location: item.unidade || "Unidade não informada",
+        deadline: item.data_publicacao || "Data não informada",
+        category: item.nome_modalidade || "Modalidade não informada",
+        isPremium: false,
+        isLocked: false
+      }));
+
+      setBiddings(mappedBiddings);
+      setPagination(prev => ({ ...prev, total: response.total }));
+    } catch (err) {
+      setError("Erro ao carregar licitações.");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    // Filtro por categoria
-    if (categoryFilter !== "all") {
-      filtered = filtered.filter(bidding => {
-        switch (categoryFilter) {
-          case "technology":
-            return bidding.category === "Tecnologia";
-          case "construction":
-            return bidding.category === "Obras Públicas";
-          case "health":
-            return bidding.category === "Saúde";
-          case "services":
-            return bidding.category === "Serviços";
-          case "consulting":
-            return bidding.category === "Consultoria";
-          case "materials":
-            return bidding.category === "Bens e Materiais";
-          default:
-            return true;
-        }
-      });
-    }
-
-    // Filtro por localização
-    if (locationFilter !== "all") {
-      filtered = filtered.filter(bidding => {
-        switch (locationFilter) {
-          case "sp":
-            return bidding.location.includes("São Paulo");
-          case "rj":
-            return bidding.location.includes("Rio de Janeiro");
-          case "mg":
-            return bidding.location.includes("Belo Horizonte");
-          case "ba":
-            return bidding.location.includes("Salvador");
-          case "pe":
-            return bidding.location.includes("Recife");
-          case "pr":
-            return bidding.location.includes("Curitiba");
-          case "ce":
-            return bidding.location.includes("Fortaleza");
-          case "df":
-            return bidding.location.includes("Brasília");
-          default:
-            return true;
-        }
-      });
-    }
-
-    // Ordenação
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "date":
-          return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
-        case "value":
-          const valueA = parseFloat(a.value.replace(/[R$.,\s]/g, ''));
-          const valueB = parseFloat(b.value.replace(/[R$.,\s]/g, ''));
-          return valueB - valueA;
-        case "location":
-          return a.location.localeCompare(b.location);
-        default: // relevant
-          return b.isPremium ? 1 : -1;
-      }
-    });
-
-    return filtered;
-  }, [searchTerm, categoryFilter, locationFilter, sortBy]);
-
-  const displayedBiddings = filteredBiddings.slice(0, displayCount);
-  const hasMore = displayCount < filteredBiddings.length;
-
-  const handleLoadMore = async () => {
-    setIsLoading(true);
-    // Simular carregamento
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setDisplayCount(prev => Math.min(prev + 6, filteredBiddings.length));
-    setIsLoading(false);
   };
 
-  const handleBiddingClick = (bidding: typeof mockBiddings[0]) => {
+  useEffect(() => {
+    fetchBiddings();
+  }, [token, pagination.page]);
+
+  useEffect(() => {
+    if (token) {
+      setPagination(prev => ({ ...prev, page: 1 }));
+    }
+  }, [searchTerm, categoryFilter, locationFilter, sortBy]);
+
+  const handleLoadMore = async () => {
+    setPagination(prev => ({ ...prev, page: prev.page + 1 }));
+  };
+
+
+  const handleBiddingClick = (bidding: Bidding) => {
     if (bidding.isPremium && bidding.isLocked) {
       setShowPricing(true);
     } else {
       setSelectedBidding(bidding);
       setShowDetailModal(true);
     }
+  }; const categoryMap: Record<string, string> = {
+    technology: "Tecnologia",
+    construction: "Obras Públicas",
+    health: "Saúde",
+    services: "Serviços",
+    consulting: "Consultoria",
+    materials: "Bens e Materiais",
   };
+
+  const locationMap: Record<string, string> = {
+    sp: "São Paulo",
+    rj: "Rio de Janeiro",
+    mg: "Belo Horizonte",
+    ba: "Salvador",
+    pe: "Recife",
+    pr: "Curitiba",
+    ce: "Fortaleza",
+    df: "Brasília",
+  };
+
+  const filteredBiddings = useMemo(() => {
+    return biddings.filter(bidding => {
+      const matchesSearch =
+        (bidding.title?.toLowerCase() ?? "").includes(searchTerm.toLowerCase()) ||
+        (bidding.agency?.toLowerCase() ?? "").includes(searchTerm.toLowerCase());
+
+      const matchesCategory =
+        categoryFilter === "all" || bidding.category === categoryMap[categoryFilter];
+
+      const matchesLocation =
+        locationFilter === "all" || bidding.location.includes(locationMap[locationFilter]);
+
+      return matchesSearch && matchesCategory && matchesLocation;
+    });
+  }, [biddings, searchTerm, categoryFilter, locationFilter]);
+
+
+
+
+  const displayedBiddings = filteredBiddings.slice(0, pagination.pageSize);
+  const hasMore = displayedBiddings.length < filteredBiddings.length;
+
+  if (loading && biddings.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-[350px] w-full rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col items-center justify-center py-12">
+          <p className="text-red-500 mb-4">{error}</p>
+          <Button onClick={fetchBiddings} variant="outline">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Tentar novamente
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Alert for free users - mantido original */}
@@ -400,11 +439,13 @@ export const Dashboard = () => {
           <div
             key={bidding.id}
             className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/30"
+            onClick={() => handleBiddingClick(bidding)}
           >
             <BiddingCard
-              {...bidding}
-              onClick={() => handleBiddingClick(bidding)}
 
+              {...bidding}
+              isPremium={bidding.isPremium || false}
+              isLocked={bidding.isLocked || false}
             />
           </div>
         ))}
@@ -440,10 +481,10 @@ export const Dashboard = () => {
             variant="outline"
             size="lg"
             onClick={handleLoadMore}
-            disabled={isLoading}
+            disabled={loading}
             className="hover:bg-primary/10 hover:text-primary transition-colors"
           >
-            {isLoading ? (
+            {loading ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 Carregando...
@@ -464,7 +505,11 @@ export const Dashboard = () => {
       />
 
       <BiddingDetailModal
-        bidding={selectedBidding}
+        bidding={{
+          ...selectedBidding!,
+          isPremium: selectedBidding?.isPremium ?? false,
+          isLocked: selectedBidding?.isLocked ?? false,
+        }}
         open={showDetailModal}
         onOpenChange={setShowDetailModal}
         onUpgrade={() => {
@@ -472,6 +517,7 @@ export const Dashboard = () => {
           setShowPricing(true);
         }}
       />
+
     </div>
   );
 };
