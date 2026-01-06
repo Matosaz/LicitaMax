@@ -1,7 +1,7 @@
 // src/integrations/biddingService.ts
 import axios from "axios";
 
-const API_BASE_URL =   "http://localhost:8080/api";
+const API_BASE_URL = "https://dadosabertos.compras.gov.br/modulo-legado";
 
 export interface Bidding {
   id: string;
@@ -29,6 +29,7 @@ export interface BiddingResponse {
   page: number;
   pageSize: number;
 }
+
 const TEST_TOKEN = "123"; // token fixo
 
 export const getAllBiddings = async (
@@ -38,21 +39,32 @@ export const getAllBiddings = async (
   pageSize: number = 10
 ): Promise<BiddingResponse> => {
   try {
-    const response = await axios.get<BiddingResponse>(
-      `${API_BASE_URL}/biddings`,
+    const response = await axios.get(
+      `${API_BASE_URL}/1_consultarLicitacao`,
       {
         headers: {
-          Authorization: `Bearer 123`,
+          "Accept": "application/json",
+          "Authorization": `Bearer ${TEST_TOKEN}`,
         },
         params: {
-          dataInicial: startDate,
-          dataFinal: endDate,
           pagina: page,
           tamanhoPagina: pageSize,
+          data_publicacao_inicial: startDate,
+          data_publicacao_final: endDate,
         },
       }
     );
-    return response.data;
+    
+    // A API retorna os dados em _embedded.licitacoes ou diretamente em data
+    const licitacoes = response.data?._embedded?.licitacoes || response.data?.data || response.data || [];
+    const total = response.data?.page?.totalElements || response.data?.total || licitacoes.length;
+    
+    return {
+      data: Array.isArray(licitacoes) ? licitacoes : [],
+      total: total,
+      page,
+      pageSize
+    };
   } catch (error) {
     // Fallback para desenvolvimento - dados mock
     console.warn('API não disponível, usando dados mock:', error);
