@@ -1,7 +1,5 @@
 // src/integrations/biddingService.ts
-import axios from "axios";
-
-const API_BASE_URL = "https://dadosabertos.compras.gov.br/modulo-legado";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Bidding {
   id: string;
@@ -30,8 +28,6 @@ export interface BiddingResponse {
   pageSize: number;
 }
 
-const TEST_TOKEN = "123"; // token fixo
-
 export const getAllBiddings = async (
   startDate: string,
   endDate: string,
@@ -39,32 +35,37 @@ export const getAllBiddings = async (
   pageSize: number = 10
 ): Promise<BiddingResponse> => {
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/1_consultarLicitacao`,
-      {
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${TEST_TOKEN}`,
-        },
-        params: {
-          pagina: page,
-          tamanhoPagina: pageSize,
-          data_publicacao_inicial: startDate,
-          data_publicacao_final: endDate,
-        },
+    // Chama a Edge Function que serve como proxy para a API do governo
+    const { data, error } = await supabase.functions.invoke('biddings-proxy', {
+      body: null,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Se a invocação falhar, tenta com query params via GET
+    if (error) {
+      console.warn('Invoke failed, trying direct call:', error);
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/biddings-proxy?pagina=${page}&tamanhoPagina=${pageSize}&data_publicacao_inicial=${startDate}&data_publicacao_final=${endDate}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
-    );
-    
-    // A API retorna os dados em _embedded.licitacoes ou diretamente em data
-    const licitacoes = response.data?._embedded?.licitacoes || response.data?.data || response.data || [];
-    const total = response.data?.page?.totalElements || response.data?.total || licitacoes.length;
-    
-    return {
-      data: Array.isArray(licitacoes) ? licitacoes : [],
-      total: total,
-      page,
-      pageSize
-    };
+      
+      return await response.json();
+    }
+
+    return data;
   } catch (error) {
     // Fallback para desenvolvimento - dados mock
     console.warn('API não disponível, usando dados mock:', error);
@@ -105,34 +106,18 @@ export const getBiddingById = async (
   token: string,
   id: string
 ): Promise<Bidding> => {
-  const response = await axios.get<Bidding>(`${API_BASE_URL}/biddings/${id}`, {
-    headers: {
-      Authorization: `Bearer ${TEST_TOKEN}`,
-    },
+  const { data, error } = await supabase.functions.invoke('biddings-proxy', {
+    body: { action: 'getById', id },
   });
-  return response.data;
+  
+  if (error) throw error;
+  return data;
 };
 
 export const downloadBiddingDocument = async (
   token: string,
   documentId: string
 ): Promise<void> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/documents/${documentId}/download`,
-    {
-      headers: {
-        Authorization: `Bearer ${TEST_TOKEN}`,
-      },
-      responseType: "blob",
-    }
-  );
-
-  // Cria um link temporário para download
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `documento-${documentId}.pdf`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Implementação futura - download de documentos
+  console.log('Download de documento:', documentId);
 };

@@ -7,109 +7,14 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
-      favorites: {
-        Row: {
-          bid_deadline: string | null
-          bid_description: string | null
-          bid_id: string
-          bid_title: string
-          bid_value: number | null
-          created_at: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          bid_deadline?: string | null
-          bid_description?: string | null
-          bid_id: string
-          bid_title: string
-          bid_value?: number | null
-          created_at?: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          bid_deadline?: string | null
-          bid_description?: string | null
-          bid_id?: string
-          bid_title?: string
-          bid_value?: number | null
-          created_at?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          company: string | null
-          created_at: string
-          display_name: string | null
-          id: string
-          phone: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          company?: string | null
-          created_at?: string
-          display_name?: string | null
-          id?: string
-          phone?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          company?: string | null
-          created_at?: string
-          display_name?: string | null
-          id?: string
-          phone?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      users: {
-        Row: {
-          auth_uid: string | null
-          email: string
-          id: number
-          name: string
-          password: string
-          role: string
-        }
-        Insert: {
-          auth_uid?: string | null
-          email: string
-          id?: number
-          name: string
-          password: string
-          role: string
-        }
-        Update: {
-          auth_uid?: string | null
-          email?: string
-          id?: number
-          name?: string
-          password?: string
-          role?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
