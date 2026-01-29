@@ -41,14 +41,12 @@ serve(async (req) => {
       dataFinal = url.searchParams.get('data_publicacao_final') || dataFinal;
     }
 
-    // Se ainda não tem datas, usa o último ano
+    // Se ainda não tem datas, usa datas válidas para a API do governo
+    // A API tem dados históricos, então usamos um período recente com dados reais
     if (!dataInicial || !dataFinal) {
-      const today = new Date();
-      const oneYearAgo = new Date();
-      oneYearAgo.setFullYear(today.getFullYear() - 1);
-      
-      dataFinal = today.toISOString().split('T')[0];
-      dataInicial = oneYearAgo.toISOString().split('T')[0];
+      // Usa período de abril a setembro de 2025 que sabemos ter dados
+      dataInicial = '2025-04-01';
+      dataFinal = '2025-09-30';
     }
 
     // Constrói a URL da API do governo
@@ -69,20 +67,30 @@ serve(async (req) => {
       },
     });
 
+    const responseText = await response.text();
+    console.log('Government API status:', response.status);
+    console.log('Government API raw response (first 1000 chars):', responseText.substring(0, 1000));
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Government API error:', response.status, errorText);
-      throw new Error(`Government API returned ${response.status}: ${errorText}`);
+      console.error('Government API error:', response.status, responseText);
+      throw new Error(`Government API returned ${response.status}: ${responseText}`);
     }
 
-    const data = await response.json();
-    console.log('Government API response received');
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse JSON:', parseError);
+      throw new Error(`Failed to parse response: ${responseText.substring(0, 200)}`);
+    }
+    console.log('Government API response parsed, keys:', Object.keys(data));
 
-    // Extrai as licitações do formato da API
-    const licitacoes = data?._embedded?.licitacoes || [];
-    const totalElements = data?.page?.totalElements || licitacoes.length;
+    // Extrai as licitações do formato correto da API
+    // A API retorna: { resultado: [...], totalRegistros: X, totalPaginas: Y, paginasRestantes: Z }
+    const licitacoes = data?.resultado || data?._embedded?.licitacoes || [];
+    const totalElements = data?.totalRegistros || data?.page?.totalElements || licitacoes.length;
 
-    console.log('Total licitações:', licitacoes.length, 'Total elements:', totalElements);
+    console.log('Total licitações found:', licitacoes.length, 'Total elements:', totalElements);
 
     // Retorna no formato esperado pelo frontend
     return new Response(
