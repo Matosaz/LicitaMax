@@ -29,8 +29,8 @@ export interface BiddingResponse {
 }
 
 export const getAllBiddings = async (
-  startDate: string,
-  endDate: string,
+  _startDate?: string,
+  _endDate?: string,
   page: number = 1,
   pageSize: number = 10
 ): Promise<BiddingResponse> => {
@@ -48,7 +48,7 @@ export const getAllBiddings = async (
       console.warn('Invoke failed, trying direct call:', error);
       
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/biddings-proxy?pagina=${page}&tamanhoPagina=${pageSize}&data_publicacao_inicial=${startDate}&data_publicacao_final=${endDate}`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/biddings-proxy?pagina=${page}&tamanhoPagina=${pageSize}`,
         {
           method: 'GET',
           headers: {
