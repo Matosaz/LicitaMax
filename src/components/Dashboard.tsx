@@ -3,13 +3,12 @@ import { BiddingCard } from "./BiddingCard";
 import { PricingModal } from "./PricingModal";
 import { BiddingDetailModal } from "./BiddingDetailModal";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { RefreshCw, TrendingUp, Crown, Search, Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { RefreshCw, Crown, Search, Filter, TrendingUp } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Bidding, getAllBiddings, BiddingResponse } from "@/integrations/biddingService";
+import { Bidding, getAllBiddings } from "@/integrations/biddingService";
 import { Skeleton } from "./ui/skeleton";
-import { useAuth } from "@/hooks/useAuth";
 // Expandindo o mock para incluir mais licitações
 // const mockBiddings = [
 //   {

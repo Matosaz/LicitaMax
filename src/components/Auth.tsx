@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Crown, Eye, EyeOff } from "lucide-react";
 import { useUser } from "@/UserContext";
 import LicitaLogo from '../assets/images/TesteIcon2.png';
 import LicitaBg from '../assets/images/Authbg.png';
 import './Auth.css'
-import { set } from "date-fns";
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +19,7 @@ export default function Auth() {
   const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [tabValue, setTabValue] = useState("login");
-  const { setUser } = useUser();
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [passwordFocus, setPasswordFocus] = useState(false);
@@ -32,15 +30,13 @@ export default function Auth() {
     uppercase: false,
     lowercase: false,
   });
+  
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && window.location.pathname === "/login") {
-        // só redireciona se estiver em outra página que não login
-        navigate("/");
-      }
-    };
-    checkUser();
+    // Verifica se já está logado via localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser && window.location.pathname === "/auth") {
+      navigate("/");
+    }
   }, [navigate]);
 
 

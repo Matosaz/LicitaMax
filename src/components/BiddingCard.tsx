@@ -1,12 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Building, Download, Eye, Lock, ChevronDown, ChevronUp, Crown } from "lucide-react";
 import { PricingModal } from "./PricingModal";
-import { getAllBiddings, downloadBiddingDocument } from "@/integrations/biddingService";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 import './BiddingCard.css'
 export interface BiddingCardProps {
   id: string;
