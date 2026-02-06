@@ -10,109 +10,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Bidding, getAllBiddings, BiddingResponse } from "@/integrations/biddingService";
 import { Skeleton } from "./ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
-// Expandindo o mock para incluir mais licitações
-// const mockBiddings = [
-//   {
-//     id: 1,
-//     title: "Aquisição de equipamentos de informática para secretaria de educação",
-//     value: "R$ 2.400.000",
-//     agency: "Prefeitura Municipal de São Paulo",
-//     location: "São Paulo, SP",
-//     deadline: "15/02/2024",
-//     category: "Tecnologia",
-//     isPremium: false,
-//     isLocked: false,
-//   },
-//   {
-//     id: 2,
-//     title: "Construção de ponte sobre o Rio Tietê na região metropolitana",
-//     value: "R$ 15.600.000",
-//     agency: "Governo do Estado de São Paulo",
-//     location: "São Paulo, SP",
-//     deadline: "28/02/2024",
-//     category: "Obras Públicas",
-//     isPremium: true,
-//     isLocked: true,
-//   },
-//   {
-//     id: 3,
-//     title: "Fornecimento de medicamentos para hospitais públicos da região",
-//     value: "R$ 8.200.000",
-//     agency: "Secretaria de Saúde do Estado",
-//     location: "Rio de Janeiro, RJ",
-//     deadline: "12/02/2024",
-//     category: "Saúde",
-//     isPremium: false,
-//     isLocked: true,
-//   },
-//   {
-//     id: 4,
-//     title: "Serviços de limpeza urbana e coleta seletiva",
-//     value: "R$ 3.800.000",
-//     agency: "Prefeitura de Belo Horizonte",
-//     location: "Belo Horizonte, MG",
-//     deadline: "20/02/2024",
-//     category: "Serviços",
-//     isPremium: false,
-//     isLocked: false,
-//   },
-//   {
-//     id: 5,
-//     title: "Contratação de consultoria em gestão pública digital",
-//     value: "R$ 1.200.000",
-//     agency: "Ministério da Economia",
-//     location: "Brasília, DF",
-//     deadline: "25/02/2024",
-//     category: "Consultoria",
-//     isPremium: true,
-//     isLocked: true,
-//   },
-//   {
-//     id: 6,
-//     title: "Aquisição de uniformes escolares para rede municipal",
-//     value: "R$ 950.000",
-//     agency: "Secretaria Municipal de Educação",
-//     location: "Salvador, BA",
-//     deadline: "18/02/2024",
-//     category: "Bens e Materiais",
-//     isPremium: false,
-//     isLocked: false,
-//   },
-//   {
-//     id: 7,
-//     title: "Sistema de videomonitoramento urbano inteligente",
-//     value: "R$ 4.200.000",
-//     agency: "Prefeitura do Recife",
-//     location: "Recife, PE",
-//     deadline: "22/02/2024",
-//     category: "Tecnologia",
-//     isPremium: true,
-//     isLocked: true,
-//   },
-//   {
-//     id: 8,
-//     title: "Pavimentação asfáltica de vias públicas",
-//     value: "R$ 12.800.000",
-//     agency: "Prefeitura de Curitiba",
-//     location: "Curitiba, PR",
-//     deadline: "30/01/2024",
-//     category: "Obras Públicas",
-//     isPremium: false,
-//     isLocked: false,
-//   },
-//   {
-//     id: 9,
-//     title: "Aquisição de ambulâncias para SAMU",
-//     value: "R$ 6.500.000",
-//     agency: "Secretaria de Saúde",
-//     location: "Fortaleza, CE",
-//     deadline: "10/02/2024",
-//     category: "Saúde",
-//     isPremium: true,
-//     isLocked: true,
-//   }
-// ];
-
+import { BiddingDetails } from "@/integrations/biddingInterfaceDetails";
+import { mapApiToBiddingDetails } from "@/integrations/biddingDetails";
 export const Dashboard = () => {
   const token = "123"; // fixo
 
@@ -131,8 +30,8 @@ export const Dashboard = () => {
   const [sortBy, setSortBy] = useState("relevant");
   const [pagination, setPagination] = useState({
     page: 1,
-    pageSize: 10,
-    total: 0,
+    pageSize: 21,
+    total: 1200,
   });
 
   // Buscar licitações da API
@@ -148,22 +47,30 @@ export const Dashboard = () => {
       const startDate = twelveMonthsAgo.toISOString().split('T')[0];
 
       const response = await getAllBiddings(startDate, today, pagination.page, pagination.pageSize);
+      console.log("Response.data:", response.data);
+      console.log("Response completa:", response);
 
       const mappedBiddings = response.data.map((item: any) => ({
-        id: item.id_compra,
-        title: item.objeto || "Objeto não informado",
-        titleSummary: item.title_summary ?? item.objeto ?? "Sem título",
-        value: item.valor_estimado_total ? `R$ ${parseFloat(item.valor_estimado_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : "Valor não informado",
-        agency: item.orgao || "Órgão não informado",
-        location: item.unidade || "Unidade não informada",
-        deadline: item.data_publicacao || "Data não informada",
-        category: item.nome_modalidade || "Modalidade não informada",
+        id: item.id,
+        title: item.title ?? "Objeto não informado",
+        titleSummary: item.title ?? "Sem título",
+        value: item.value ?? "Valor não informado",
+
+        agency: item.agency ?? "Órgão não informado",
+        location: item.location ?? "Local não informado",
+        category: item.category ?? "Outros",
+
+        deadline: item.deadline ?? "Data não informada",
         isPremium: false,
-        isLocked: false
+        isLocked: false,
       }));
 
-      setBiddings(mappedBiddings);
-      setPagination(prev => ({ ...prev, total: response.total }));
+
+      setBiddings((prev) =>
+        pagination.page === 1 ? mappedBiddings : [...prev, ...mappedBiddings]
+      );
+
+      setPagination((prev) => ({ ...prev, total: 1200 }));
     } catch (err) {
       setError("Erro ao carregar licitações.");
       console.error(err);
@@ -176,11 +83,14 @@ export const Dashboard = () => {
     fetchBiddings();
   }, [token, pagination.page]);
 
+  // Resetar para a página 1 sempre que filtros mudarem
   useEffect(() => {
-    if (token) {
-      setPagination(prev => ({ ...prev, page: 1 }));
-    }
+    setPagination((prev) => ({
+      ...prev,
+      page: 1,
+    }));
   }, [searchTerm, categoryFilter, locationFilter, sortBy]);
+
 
   const handleLoadMore = async () => {
     setPagination(prev => ({ ...prev, page: prev.page + 1 }));
@@ -224,17 +134,25 @@ export const Dashboard = () => {
         categoryFilter === "all" || bidding.category === categoryMap[categoryFilter];
 
       const matchesLocation =
-        locationFilter === "all" || bidding.location.includes(locationMap[locationFilter]);
+        locationFilter === "all" ||
+        (bidding.location ?? "").includes(locationMap[locationFilter]);
+
 
       return matchesSearch && matchesCategory && matchesLocation;
     });
   }, [biddings, searchTerm, categoryFilter, locationFilter]);
 
 
+  const totalFilteredBiddings = filteredBiddings.length;
 
+  // Total de licitações carregadas (sem filtros)
+  const totalBiddings = biddings.length;
 
-  const displayedBiddings = filteredBiddings.slice(0, pagination.pageSize);
-  const hasMore = displayedBiddings.length < filteredBiddings.length;
+  const displayedBiddings = filteredBiddings;
+  const hasMore = biddings.length < pagination.total && filteredBiddings.length > 0;
+  console.log("hasMore:", hasMore, "biddings.length:", biddings.length, "pagination.total:", pagination.total);
+console.log("Biddings:", biddings);
+console.log("Filtered:", filteredBiddings);
 
   if (loading && biddings.length === 0) {
     return (
@@ -377,7 +295,7 @@ export const Dashboard = () => {
                   <SelectItem value="relevant" className="hover:bg-accent">Mais relevantes</SelectItem>
                   <SelectItem value="date" className="hover:bg-accent">Data limite</SelectItem>
                   <SelectItem value="value" className="hover:bg-accent">Maior valor</SelectItem>
-                  <SelectItem value="location" className="hover:bg-accent">Localização</SelectItem>
+                  <SelectItem value="location" className="hover:bg-accent">Menor valor</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -428,7 +346,7 @@ export const Dashboard = () => {
           </h2>
           <Badge variant="outline" className="flex items-center gap-1">
             <TrendingUp className="h-4 w-4" />
-            {filteredBiddings.length} encontrada{filteredBiddings.length !== 1 ? "s" : ""}
+            {totalBiddings} encontrada{filteredBiddings.length !== 1 ? "s" : ""}
           </Badge>
         </div>
       </div>
@@ -475,7 +393,7 @@ export const Dashboard = () => {
       )}
 
       {/* Carregar mais */}
-      {hasMore && filteredBiddings.length > 0 && (
+      {hasMore && biddings.length > 0 && (
         <div className="text-center mt-8">
           <Button
             variant="outline"
@@ -494,7 +412,7 @@ export const Dashboard = () => {
             )}
           </Button>
           <p className="text-sm text-muted-foreground mt-2">
-            Mostrando {displayedBiddings.length} de {filteredBiddings.length} licitações encontradas
+            Mostrando {displayedBiddings.length} de {pagination.total} licitações encontradas
           </p>
         </div>
       )}
@@ -505,11 +423,7 @@ export const Dashboard = () => {
       />
 
       <BiddingDetailModal
-        bidding={{
-          ...selectedBidding!,
-          isPremium: selectedBidding?.isPremium ?? false,
-          isLocked: selectedBidding?.isLocked ?? false,
-        }}
+        detailsId={selectedBidding?.id ?? null}
         open={showDetailModal}
         onOpenChange={setShowDetailModal}
         onUpgrade={() => {

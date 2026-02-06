@@ -1,12 +1,14 @@
 // src/integrations/biddingService.ts
 import axios from "axios";
 
-const API_BASE_URL =   "http://localhost:8080/api";
-
+const API_BASE_URL =
+  import.meta.env.DEV
+    ? "http://localhost:8888/.netlify/functions/licitacoes"
+    : "/.netlify/functions/licitacoes";
 export interface Bidding {
   id: string;
   title: string;
-  titleSummary?: string; 
+  titleSummary?: string;
   value: string;
   agency: string;
   location: string;
@@ -35,71 +37,75 @@ export const getAllBiddings = async (
   startDate: string,
   endDate: string,
   page: number = 1,
-  pageSize: number = 10
+  pageSize: number = 20
 ): Promise<BiddingResponse> => {
   try {
-    const response = await axios.get<BiddingResponse>(
-      `${API_BASE_URL}/biddings`,
-      {
-        headers: {
-          Authorization: `Bearer 123`,
-        },
-        params: {
-          dataInicial: startDate,
-          dataFinal: endDate,
-          pagina: page,
-          tamanhoPagina: pageSize,
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    // Fallback para desenvolvimento - dados mock
-    console.warn('API não disponível, usando dados mock:', error);
-    const mockData: Bidding[] = [
-      {
-        id: "1",
-        title: "Aquisição de equipamentos de informática",
-        value: "R$ 2.400.000",
-        agency: "Prefeitura Municipal",
-        location: "São Paulo, SP",
-        deadline: "15/02/2024",
-        category: "Tecnologia",
+    const response = await axios.get(API_BASE_URL, {
+      params: {
+        pagina: page,
+        tamanho_pagina: pageSize,
+        data_publicacao_inicial: startDate,
+        data_publicacao_final: endDate,
+      },
+    });
+
+    const items = response.data?.resultado ?? [];
+
+    return {
+      data: items.map((item: any) => ({
+        id: item.id_compra,
+        title: item.objeto,
+        value: item.valor_estimado_total
+          ? `R$ ${item.valor_estimado_total.toLocaleString("pt-BR")}`
+          : "Valor não informado",
+        agency: item.orgao_entidade_razao_social,
+        location: item.municipio_entidade,
+        deadline: item.data_abertura_proposta,
+        category: item.nome_modalidade,
         isPremium: false,
         isLocked: false,
-      },
-      {
-        id: "2",
-        title: "Construção de ponte",
-        value: "R$ 15.600.000",
-        agency: "Governo do Estado",
-        location: "São Paulo, SP",
-        deadline: "28/02/2024",
-        category: "Obras Públicas",
-        isPremium: true,
-        isLocked: true,
-      }
-    ];
-    return {
-      data: mockData,
-      total: mockData.length,
+      })),
+      total: response.data?.total_registros ?? items.length,
       page,
-      pageSize
+      pageSize,
+    };
+  } catch (error) {
+    console.warn("API não disponível, usando dados mock:", error);
+
+    return {
+      data: [
+        {
+          id: "1",
+          title: "Aquisição de equipamentos de informática",
+          value: "R$ 2.400.000",
+          agency: "Prefeitura Municipal",
+          location: "São Paulo, SP",
+          deadline: "2024-02-15",
+          category: "Tecnologia",
+          isPremium: false,
+          isLocked: false,
+        },
+      ],
+      total: 1,
+      page,
+      pageSize,
     };
   }
 };
 
-export const getBiddingById = async (
-  token: string,
-  id: string
-): Promise<Bidding> => {
-  const response = await axios.get<Bidding>(`${API_BASE_URL}/biddings/${id}`, {
-    headers: {
-      Authorization: `Bearer ${TEST_TOKEN}`,
+
+export const getBiddingById = async (id: string) => {
+  const response = await axios.get(API_BASE_URL, {
+    params: {
+      id_compra: id,
     },
   });
+
   return response.data;
 };
+
+
+
 
 export const downloadBiddingDocument = async (
   token: string,

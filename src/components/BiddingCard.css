@@ -13,14 +13,34 @@
 }
 
 .card-title {
-    margin-left: 0px!important;
-    font-size: 1.125rem!important;
+    margin-left: 0px !important;
+    font-size: 1.125rem !important;
     /* 18px */
     font-weight: 600;
-    color: #3a3a3a!important;
+    color: #3a3a3a !important;
     line-height: 1.5rem;
     -webkit-box-orient: vertical;
     overflow: hidden;
     transition: color 0.3s ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    /* ou 3 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
+.fade-text-horizontal {
+  overflow: hidden;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 85%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    black 85%,
+    transparent 100%
+  );
+}
+
 

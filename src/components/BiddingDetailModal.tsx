@@ -3,64 +3,82 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Download, Calendar, MapPin, Building, DollarSign, Lock, Crown, FileText, Clock, User, PackageOpen } from "lucide-react";
-import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { BiddingDetails } from "@/integrations/biddingInterfaceDetails";
+import { mapApiToBiddingDetails } from "@/integrations/biddingDetails";
+import { getBiddingById } from "@/integrations/biddingService";
 
 interface BiddingDetailModalProps {
-  bidding: {
-    title: string;
-    value: string;
-    agency: string;
-    location: string;
-    deadline: string;
-    category: string;
-    isPremium: boolean;
-    isLocked: boolean;
-  } | null;
+  detailsId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpgrade: () => void;
 }
 
-export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: BiddingDetailModalProps) => {
-  const [downloadingStates, setDownloadingStates] = useState<{ [key: string]: boolean }>({});
+export const BiddingDetailModal = ({
+  detailsId,
+  open,
+  onOpenChange,
+  onUpgrade,
+}: BiddingDetailModalProps) => {
+  const [details, setDetails] = useState<BiddingDetails | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  const [downloading, setDownloading] = useState<Record<string, boolean>>({});
   const [downloadingAll, setDownloadingAll] = useState(false);
   const { toast } = useToast();
 
-  if (!bidding) return null;
+  useEffect(() => {
+    if (!open || !detailsId) return;
 
-  const handleDownload = async (docIndex?: number) => {
-    if (bidding.isLocked) {
+    const fetchDetails = async () => {
+      try {
+        setLoading(true);
+        setError(false);
+
+        const apiResponse = await getBiddingById(detailsId);
+        const mapped = mapApiToBiddingDetails(apiResponse);
+  console.log('🟢 RESPONSE INTEIRA:', apiResponse);
+    console.log('🟡 apiResponse.data:', apiResponse?.data);
+    console.log('🔵 typeof apiResponse.data:', typeof apiResponse?.data);
+
+        setDetails(mapped);
+      } catch (err) {
+        console.error(err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetails();
+  }, [open, detailsId]);
+
+  const handleDownload = async (docIndex: number) => {
+    if (details?.isLocked) {
       onUpgrade();
       return;
     }
 
-    const docKey = docIndex !== undefined ? `doc-${docIndex}` : 'all';
-    setDownloadingStates(prev => ({ ...prev, [docKey]: true }));
+    const key = `doc-${docIndex}`;
+    setDownloading(prev => ({ ...prev, [key]: true }));
 
     try {
-      // Simular download
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       toast({
         title: "Download concluído",
-        description: docIndex !== undefined
-          ? `${mockDetails.documentos[docIndex].nome} foi baixado com sucesso.`
-          : "Todos os documentos foram baixados com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro no download",
-        description: "Ocorreu um erro ao baixar o arquivo. Tente novamente.",
-        variant: "destructive",
+        description: `${details.documents[docIndex].name} foi baixado com sucesso.`,
       });
     } finally {
-      setDownloadingStates(prev => ({ ...prev, [docKey]: false }));
+      setDownloading(prev => ({ ...prev, [key]: false }));
     }
   };
 
   const handleDownloadAll = async () => {
-    if (bidding.isLocked) {
+    if (details?.isLocked) {
       onUpgrade();
       return;
     }
@@ -68,50 +86,44 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
     setDownloadingAll(true);
 
     try {
-      // Simular download de todos os documentos
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       toast({
         title: "Download completo",
-        description: `Todos os ${mockDetails.documentos.length} documentos foram baixados com sucesso.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Erro no download",
-        description: "Ocorreu um erro ao baixar os arquivos. Tente novamente.",
-        variant: "destructive",
+        description: `Todos os ${details?.documents?.length ?? 0} documentos foram baixados.`,
       });
     } finally {
       setDownloadingAll(false);
     }
   };
 
-  const mockDetails = {
-    description: "Processo licitatório destinado à aquisição de equipamentos de informática, incluindo computadores, impressoras, servidores e periféricos para modernização da infraestrutura tecnológica da secretaria de educação municipal.",
-    modalidade: "Pregão Eletrônico",
-    numero: "PE 001/2024",
-    objeto: "Aquisição de equipamentos de informática",
-    participacao: "Ampla concorrência",
-    dataPublicacao: "15/01/2024",
-    dataAbertura: "15/02/2024 09:00",
-    valorReferencia: "R$ 2.400.000,00",
-    documentos: [
-      { nome: "Edital Completo", tipo: "PDF", tamanho: "2.3 MB" },
-      { nome: "Anexo I - Especificações", tipo: "PDF", tamanho: "850 KB" },
-      { nome: "Minuta do Contrato", tipo: "PDF", tamanho: "1.2 MB" }
-    ],
-    contato: {
-      responsavel: "João Silva",
-      email: "licitacao@prefeitura.sp.gov.br",
-      telefone: "(11) 3333-4444"
-    }
-  };
+
+  if (loading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="flex justify-center p-10">
+          <Clock className="h-6 w-6 animate-spin text-muted-foreground" />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  if (error || !details) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="p-8">
+          <p className="text-sm text-destructive">
+            Não foi possível carregar os detalhes da licitação.
+          </p>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-8">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold pr-8">{bidding.title}</DialogTitle>
+          <DialogTitle className="text-xl font-bold pr-8">{details.title}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -121,28 +133,28 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
               <DollarSign className="h-4 w-4 text-success" />
               <div>
                 <p className="text-sm text-muted-foreground">Valor Estimado</p>
-                <p className="font-semibold text-success">{bidding.value}</p>
+                <p className="font-semibold text-success">{details.value}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-warning" />
               <div>
                 <p className="text-sm text-muted-foreground">Prazo</p>
-                <p className="font-semibold">{bidding.deadline}</p>
+                <p className="font-semibold">{details.deadline}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
               <div>
                 <p className="text-sm text-muted-foreground">Localização</p>
-                <p className="font-semibold">{bidding.location}</p>
+                <p className="font-semibold">{details.location}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Building className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-sm text-muted-foreground">Órgão</p>
-                <p className="font-semibold text-xs">{bidding.agency}</p>
+                <p className="font-semibold text-xs">{details.agency}</p>
               </div>
             </div>
           </div>
@@ -151,10 +163,10 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
 
           {/* Badges e status */}
           <div className="flex flex-wrap gap-2">
-            <Badge variant="default">{bidding.category}</Badge>
-            <Badge variant="outline">{mockDetails.modalidade}</Badge>
-            <Badge variant="outline">{mockDetails.numero}</Badge>
-            {bidding.isPremium && (
+            <Badge variant="default">{details.category}</Badge>
+            <Badge variant="outline">{details?.modalidade}</Badge>
+            <Badge variant="outline">{details?.numero}</Badge>
+            {details.isPremium && (
               <Badge variant="secondary" className="flex items-center gap-1 bg-premium/10 text-premium border-premium/20">
                 <Crown className="h-3 w-3" />
                 Premium
@@ -165,7 +177,7 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
           {/* Descrição */}
           <div>
             <h3 className="font-semibold mb-2">Descrição do Objeto</h3>
-            <p className="text-muted-foreground">{mockDetails.description}</p>
+            <p className="text-muted-foreground">{details?.description}</p>
           </div>
 
           <Separator />
@@ -177,23 +189,23 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Modalidade:</span>
-                  <span>{mockDetails.modalidade}</span>
+                  <span>{details?.modalidade}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Número:</span>
-                  <span>{mockDetails.numero}</span>
+                  <span>{details?.numero}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Participação:</span>
-                  <span>{mockDetails.participacao}</span>
+                  <span>{details?.participacao}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Data Publicação:</span>
-                  <span>{mockDetails.dataPublicacao}</span>
+                  <span>{details?.dataPublicacao}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Data Abertura:</span>
-                  <span>{mockDetails.dataAbertura}</span>
+                  <span>{details?.dataAbertura}</span>
                 </div>
               </div>
             </div>
@@ -203,20 +215,20 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span>{mockDetails.contato.responsavel}</span>
+                  <span>{details?.contato.responsavel}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Email:</span>
                   <a
-                    href={`mailto:${mockDetails.contato.email}`}
+                    href={`mailto:${details?.contato.email}`}
                     className="text-sky-600 cursor-pointer hover:underline"
                   >
-                    {mockDetails.contato.email}
+                    {details?.contato.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Telefone:</span>
-                  <span>{mockDetails.contato.telefone}</span>
+                  <span>{details?.contato.telefone}</span>
                 </div>
               </div>
             </div>
@@ -228,7 +240,7 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">Documentos Disponíveis</h3>
-              {!bidding.isLocked && (
+              {!details.isLocked && (
                 <Button
                   variant="default"
                   size="sm"
@@ -251,25 +263,25 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
               )}
             </div>
             <div className="space-y-3">
-              {mockDetails.documentos.map((doc, index) => {
-                const isDownloading = downloadingStates[`doc-${index}`];
+              {details?.documents.map((doc, index) => {
+                const isDownloading = downloading[`doc-${index}`];
                 return (
                   <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium">{doc.nome}</p>
-                        <p className="text-sm text-muted-foreground">{doc.tipo} • {doc.tamanho}</p>
+                        <p className="font-medium">{doc.name}</p>
+                        <p className="text-sm text-muted-foreground">{doc.type} • {doc.size}</p>
                       </div>
                     </div>
                     <Button
-                      variant={bidding.isLocked ? "outline" : "secondary"}
+                      variant={details.isLocked ? "outline" : "secondary"}
                       size="sm"
                       onClick={() => handleDownload(index)}
                       disabled={isDownloading}
                       className="flex items-center gap-2 min-w-[100px]"
                     >
-                      {bidding.isLocked ? (
+                      {details.isLocked ? (
                         <>
                           <Lock className="h-4 w-4" />
                           Bloqueado
@@ -293,7 +305,7 @@ export const BiddingDetailModal = ({ bidding, open, onOpenChange, onUpgrade }: B
           </div>
 
           {/* Call to action para upgrade */}
-          {bidding.isLocked && (
+          {details.isLocked && (
             <div className="bg-gradient-to-r from-premium/10 to-premium/5 border border-premium/20 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

@@ -7,6 +7,8 @@ import { PricingModal } from "./PricingModal";
 import { getAllBiddings, downloadBiddingDocument } from "@/integrations/biddingService";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { truncateText } from "@/lib/utils";
+
 import './BiddingCard.css'
 export interface BiddingCardProps {
   id: string;
@@ -68,8 +70,8 @@ export const BiddingCard = ({
 
       <CardHeader className="pb-3 card-bidding">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="card-title">
-          { showDetails ? title : titleSummary}
+          <h3 className="card-title fade-text-horizontal">
+          { showDetails ? title : truncateText(titleSummary || title, 150)}
           </h3>
         </div>
 
