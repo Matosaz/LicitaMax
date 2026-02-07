@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Search, User, Crown, Star,FileText, LogOut, Heart, Menu, X } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { User, Crown, LogOut, Heart, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import LicitaLogo from '../assets/images/TesteIcon2.png';

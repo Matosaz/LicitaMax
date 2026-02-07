@@ -31,11 +31,126 @@ export interface BiddingResponse {
   page: number;
   pageSize: number;
 }
-const TEST_TOKEN = "123"; // token fixo
+
+const GOV_API_URL = "https://dadosabertos.compras.gov.br/modulo-legado/1_consultarLicitacao";
+
+// Dados mock para fallback
+const mockBiddings: Bidding[] = [
+  {
+    id: "1",
+    title: "Aquisição de equipamentos de informática para secretaria de educação",
+    value: "R$ 2.400.000,00",
+    agency: "Prefeitura Municipal de São Paulo",
+    location: "São Paulo - SP",
+    deadline: "15/02/2025",
+    category: "Tecnologia",
+    isPremium: false,
+    isLocked: false,
+  },
+  {
+    id: "2",
+    title: "Construção de ponte sobre o Rio Tietê na região metropolitana",
+    value: "R$ 15.600.000,00",
+    agency: "Governo do Estado de São Paulo",
+    location: "São Paulo - SP",
+    deadline: "28/02/2025",
+    category: "Obras Públicas",
+    isPremium: true,
+    isLocked: true,
+  },
+  {
+    id: "3",
+    title: "Fornecimento de medicamentos para hospitais públicos da região",
+    value: "R$ 8.200.000,00",
+    agency: "Secretaria de Saúde do Estado",
+    location: "Rio de Janeiro - RJ",
+    deadline: "12/02/2025",
+    category: "Saúde",
+    isPremium: false,
+    isLocked: false,
+  },
+  {
+    id: "4",
+    title: "Serviços de limpeza urbana e coleta seletiva",
+    value: "R$ 3.800.000,00",
+    agency: "Prefeitura de Belo Horizonte",
+    location: "Belo Horizonte - MG",
+    deadline: "20/02/2025",
+    category: "Serviços",
+    isPremium: false,
+    isLocked: false,
+  },
+  {
+    id: "5",
+    title: "Contratação de consultoria em gestão pública digital",
+    value: "R$ 1.200.000,00",
+    agency: "Ministério da Economia",
+    location: "Brasília - DF",
+    deadline: "25/02/2025",
+    category: "Consultoria",
+    isPremium: true,
+    isLocked: true,
+  },
+  {
+    id: "6",
+    title: "Aquisição de uniformes escolares para rede municipal",
+    value: "R$ 950.000,00",
+    agency: "Secretaria Municipal de Educação",
+    location: "Salvador - BA",
+    deadline: "18/02/2025",
+    category: "Bens e Materiais",
+    isPremium: false,
+    isLocked: false,
+  },
+  {
+    id: "7",
+    title: "Sistema de videomonitoramento urbano inteligente",
+    value: "R$ 4.200.000,00",
+    agency: "Prefeitura do Recife",
+    location: "Recife - PE",
+    deadline: "22/02/2025",
+    category: "Tecnologia",
+    isPremium: true,
+    isLocked: true,
+  },
+  {
+    id: "8",
+    title: "Pavimentação asfáltica de vias públicas",
+    value: "R$ 12.800.000,00",
+    agency: "Prefeitura de Curitiba",
+    location: "Curitiba - PR",
+    deadline: "30/01/2025",
+    category: "Obras Públicas",
+    isPremium: false,
+    isLocked: false,
+  },
+  {
+    id: "9",
+    title: "Aquisição de ambulâncias para SAMU",
+    value: "R$ 6.500.000,00",
+    agency: "Secretaria de Saúde",
+    location: "Fortaleza - CE",
+    deadline: "10/02/2025",
+    category: "Saúde",
+    isPremium: true,
+    isLocked: true,
+  },
+  {
+    id: "10",
+    title: "Reforma de escolas municipais",
+    value: "R$ 5.300.000,00",
+    agency: "Secretaria de Educação",
+    location: "Porto Alegre - RS",
+    deadline: "05/03/2025",
+    category: "Obras Públicas",
+    isPremium: false,
+    isLocked: false,
+  }
+];
 
 export const getAllBiddings = async (
-  startDate: string,
-  endDate: string,
+  _startDate?: string,
+  _endDate?: string,
   page: number = 1,
   pageSize: number = 20
 ): Promise<BiddingResponse> => {
@@ -108,25 +223,8 @@ export const getBiddingById = async (id: string) => {
 
 
 export const downloadBiddingDocument = async (
-  token: string,
+  _token: string,
   documentId: string
 ): Promise<void> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/documents/${documentId}/download`,
-    {
-      headers: {
-        Authorization: `Bearer ${TEST_TOKEN}`,
-      },
-      responseType: "blob",
-    }
-  );
-
-  // Cria um link temporário para download
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `documento-${documentId}.pdf`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  console.log('Download de documento:', documentId);
 };

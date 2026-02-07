@@ -3,11 +3,11 @@ import { BiddingCard } from "./BiddingCard";
 import { PricingModal } from "./PricingModal";
 import { BiddingDetailModal } from "./BiddingDetailModal";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { RefreshCw, TrendingUp, Crown, Search, Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { RefreshCw, Crown, Search, Filter, TrendingUp } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Bidding, getAllBiddings, BiddingResponse } from "@/integrations/biddingService";
+import { Bidding, getAllBiddings } from "@/integrations/biddingService";
 import { Skeleton } from "./ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { BiddingDetails } from "@/integrations/biddingInterfaceDetails";
@@ -35,6 +35,51 @@ export const Dashboard = () => {
   });
 
   // Buscar licitações da API
+
+  // Função para extrair cidade/UF do campo de localização
+  const extractCity = (location: string): string => {
+    if (!location) return "Não informada";
+    // Tenta extrair cidade do formato "Cidade - UF" ou "Cidade/UF"
+    const match = location.match(/([A-Za-zÀ-ú\s]+)(?:\s*[-\/]\s*([A-Z]{2}))?/);
+    if (match) {
+      return match[1].trim();
+    }
+    return location;
+  };
+
+  // Função para classificar categoria baseado no objeto/título da licitação
+  const classifyCategory = (objeto: string, modalidade: string): string => {
+    const text = (objeto || "").toLowerCase();
+    
+    if (text.includes("informática") || text.includes("software") || text.includes("computador") || 
+        text.includes("sistema") || text.includes("tecnologia") || text.includes("equipamento de ti") ||
+        text.includes("rede") || text.includes("servidor")) {
+      return "Tecnologia";
+    }
+    if (text.includes("obra") || text.includes("construção") || text.includes("reforma") || 
+        text.includes("pavimentação") || text.includes("ponte") || text.includes("edificação") ||
+        text.includes("infraestrutura") || text.includes("saneamento")) {
+      return "Obras Públicas";
+    }
+    if (text.includes("serviço") || text.includes("limpeza") || text.includes("manutenção") ||
+        text.includes("vigilância") || text.includes("segurança") || text.includes("transporte")) {
+      return "Serviços";
+    }
+    if (text.includes("consultoria") || text.includes("assessoria") || text.includes("auditoria") ||
+        text.includes("estudo") || text.includes("projeto")) {
+      return "Consultoria";
+    }
+    if (text.includes("medicamento") || text.includes("saúde") || text.includes("hospital") ||
+        text.includes("ambulância") || text.includes("médico") || text.includes("clínica")) {
+      return "Saúde";
+    }
+    if (text.includes("material") || text.includes("mobiliário") || text.includes("uniforme") ||
+        text.includes("alimento") || text.includes("veículo") || text.includes("equipamento")) {
+      return "Bens e Materiais";
+    }
+    
+    return modalidade || "Outros";
+  };
 
   const fetchBiddings = async () => {
     try {
@@ -104,31 +149,47 @@ export const Dashboard = () => {
       setSelectedBidding(bidding);
       setShowDetailModal(true);
     }
-  }; const categoryMap: Record<string, string> = {
+  };
+
+  // Mapa de categorias para filtro
+  const categoryMap: Record<string, string> = {
     technology: "Tecnologia",
     construction: "Obras Públicas",
     health: "Saúde",
     services: "Serviços",
     consulting: "Consultoria",
     materials: "Bens e Materiais",
+    others: "Outros",
   };
 
-  const locationMap: Record<string, string> = {
-    sp: "São Paulo",
-    rj: "Rio de Janeiro",
-    mg: "Belo Horizonte",
-    ba: "Salvador",
-    pe: "Recife",
-    pr: "Curitiba",
-    ce: "Fortaleza",
-    df: "Brasília",
-  };
+  // Extrai cidades únicas dos dados carregados para filtro dinâmico
+  const availableCities = useMemo(() => {
+    const cities = new Set<string>();
+    biddings.forEach((b: any) => {
+      if (b.city && b.city !== "Não informada") {
+        cities.add(b.city);
+      }
+    });
+    return Array.from(cities).sort();
+  }, [biddings]);
+
+  // Extrai UFs únicas dos dados carregados
+  const availableUFs = useMemo(() => {
+    const ufs = new Set<string>();
+    biddings.forEach((b: any) => {
+      if (b.uf) {
+        ufs.add(b.uf);
+      }
+    });
+    return Array.from(ufs).sort();
+  }, [biddings]);
 
   const filteredBiddings = useMemo(() => {
-    return biddings.filter(bidding => {
+    return biddings.filter((bidding: any) => {
       const matchesSearch =
         (bidding.title?.toLowerCase() ?? "").includes(searchTerm.toLowerCase()) ||
-        (bidding.agency?.toLowerCase() ?? "").includes(searchTerm.toLowerCase());
+        (bidding.agency?.toLowerCase() ?? "").includes(searchTerm.toLowerCase()) ||
+        (bidding.location?.toLowerCase() ?? "").includes(searchTerm.toLowerCase());
 
       const matchesCategory =
         categoryFilter === "all" || bidding.category === categoryMap[categoryFilter];
@@ -300,19 +361,44 @@ console.log("Filtered:", filteredBiddings);
               </Select>
 
               <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger className="w-[180px] hover:border-primary/80 transition-colors">
-                  <SelectValue placeholder="Localização" />
+                <SelectTrigger className="w-[200px] hover:border-primary/80 transition-colors">
+                  <SelectValue placeholder="Cidade / UF" />
                 </SelectTrigger>
-                <SelectContent className="[&_*]:cursor-pointer">
-                  <SelectItem value="all" className="hover:bg-accent">Todas as cidades</SelectItem>
-                  <SelectItem value="sp" className="hover:bg-accent">São Paulo</SelectItem>
-                  <SelectItem value="rj" className="hover:bg-accent">Rio de Janeiro</SelectItem>
-                  <SelectItem value="mg" className="hover:bg-accent">Belo Horizonte</SelectItem>
-                  <SelectItem value="ba" className="hover:bg-accent">Salvador</SelectItem>
-                  <SelectItem value="pe" className="hover:bg-accent">Recife</SelectItem>
-                  <SelectItem value="pr" className="hover:bg-accent">Curitiba</SelectItem>
-                  <SelectItem value="ce" className="hover:bg-accent">Fortaleza</SelectItem>
-                  <SelectItem value="df" className="hover:bg-accent">Brasília</SelectItem>
+                <SelectContent className="[&_*]:cursor-pointer max-h-[300px]">
+                  <SelectItem value="all" className="hover:bg-accent font-medium">Todas as localidades</SelectItem>
+                  
+                  {/* UFs disponíveis */}
+                  {availableUFs.length > 0 && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                        Estados
+                      </div>
+                      {availableUFs.map((uf) => (
+                        <SelectItem key={uf} value={uf} className="hover:bg-accent">
+                          {uf}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Cidades disponíveis */}
+                  {availableCities.length > 0 && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                        Cidades
+                      </div>
+                      {availableCities.slice(0, 20).map((city) => (
+                        <SelectItem key={city} value={city} className="hover:bg-accent">
+                          {city}
+                        </SelectItem>
+                      ))}
+                      {availableCities.length > 20 && (
+                        <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                          +{availableCities.length - 20} cidades...
+                        </div>
+                      )}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
 
